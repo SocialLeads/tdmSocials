@@ -1,0 +1,17 @@
+node_modules
+dist
+build
+coverage
+*.log
+.DS_Store
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+infra/env/backend.env
+infra/env/frontend.env
+
+# Docker volumes
+pg_data
+redis_data

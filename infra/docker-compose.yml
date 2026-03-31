@@ -1,0 +1,73 @@
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend_admin
+      - frontend_public
+      - backend_blue
+      - backend_green
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+
+  backend_blue:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - redis
+    expose:
+      - "4000"
+
+  backend_green:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - redis
+    expose:
+      - "4000"
+
+  frontend_admin:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: /api
+    restart: unless-stopped
+    expose:
+      - "3000"
+
+  frontend_public:
+    build:
+      context: ../frontend-public
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: /api
+    restart: unless-stopped
+    expose:
+      - "3001"
+
+volumes:
+  caddy_data:
+  caddy_config:
+  redis_data:

@@ -1,0 +1,16 @@
+tdmsocials.nl, www.tdmsocials.nl {
+  handle_path /api/* {
+    reverse_proxy backend_blue:4000
+  }
+
+  handle_path /admin/* {
+    reverse_proxy frontend_admin:3000
+  }
+  handle /admin {
+    reverse_proxy frontend_admin:3000
+  }
+
+  handle {
+    reverse_proxy frontend_public:3001
+  }
+}

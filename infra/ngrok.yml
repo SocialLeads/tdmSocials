@@ -1,0 +1,15 @@
+version: "3"
+
+# Tunnel config for local development.
+# Authtoken lives in the global ngrok config (~/.../ngrok.yml) — not here.
+# Run both tunnels: ngrok start --all --config "$HOME/Library/Application Support/ngrok/ngrok.yml" --config ngrok.yml
+
+tunnels:
+  backend:
+    proto: http
+    addr: 4000
+    domain: micjcameron-backend.ngrok.app
+  frontend:
+    proto: http
+    addr: 3000
+    domain: micjcameron.ngrok.app
