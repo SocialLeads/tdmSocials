@@ -68,4 +68,16 @@ export class GenerateInvoiceDto {
   @IsNotEmpty()
   @ApiProperty({ example: 'INV-001' })
   invoiceNumber: string;
+
+  @IsString()
+  @ApiProperty({ example: '12345678' })
+  kvkNumber: string;
+
+  @IsString()
+  @ApiProperty({ example: 'NL123456789B01' })
+  btwId: string;
+
+  @IsString()
+  @ApiProperty({ example: 'NL00BANK0123456789' })
+  iban: string;
 }

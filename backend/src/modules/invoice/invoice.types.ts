@@ -16,4 +16,7 @@ export interface InvoiceData {
   grandTotal: number;
   invoiceDate: string;
   invoiceNumber: string;
+  kvkNumber: string;
+  btwId: string;
+  iban: string;
 }

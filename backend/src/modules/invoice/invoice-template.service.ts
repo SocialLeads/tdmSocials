@@ -33,9 +33,17 @@ export class InvoiceTemplateService {
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;">
       <div>
         <h1 style="font-size:32px;font-weight:700;color:#4f46e5;margin-bottom:4px;">TDM Socials</h1>
-        <p style="font-size:14px;color:#6b7280;">${data.invoiceNumber}</p>
+        <p style="font-size:13px;color:#6b7280;line-height:1.6;">
+          Heuvelstraat 27b<br/>
+          4812 PG Breda<br/>
+          info@tdmsocials.nl<br/>
+          KVK: ${data.kvkNumber || '-'}<br/>
+          BTW: ${data.btwId || '-'}
+        </p>
       </div>
       <div style="text-align:right;">
+        <p style="font-size:14px;color:#6b7280;">Factuurnr.</p>
+        <p style="font-size:16px;font-weight:600;color:#111827;margin-bottom:12px;">${data.invoiceNumber}</p>
         <p style="font-size:14px;color:#6b7280;">Datum</p>
         <p style="font-size:16px;font-weight:600;color:#111827;">${data.invoiceDate}</p>
       </div>
@@ -80,8 +88,9 @@ export class InvoiceTemplateService {
 
     <div style="border-top:1px solid #e5e7eb;padding-top:24px;">
       <p style="font-size:12px;color:#9ca3af;text-align:center;">
-        Bedankt voor uw vertrouwen. Betaling binnen 30 dagen.<br/>
-        TDM Socials | info@tdmsocials.nl | tdmsocials.nl
+        Betaling binnen 14 dagen op onderstaand rekeningnummer.<br/>
+        IBAN: ${data.iban || '-'}&nbsp;&nbsp;|&nbsp;&nbsp;t.n.v. TDM Socials<br/><br/>
+        TDM Socials | Heuvelstraat 27b, 4812 PG Breda | info@tdmsocials.nl | tdmsocials.nl
       </p>
     </div>
   </div>

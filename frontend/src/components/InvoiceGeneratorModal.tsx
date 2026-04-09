@@ -6,10 +6,28 @@ interface Props { isOpen: boolean; onClose: () => void; client: Client | null; o
 
 const emptyLineItem = (): InvoiceLineItem => ({ description: '', quantity: 0, unitPrice: 0, total: 0 });
 
+const STORAGE_KEY = 'tdm_invoice_details';
+const loadCached = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+};
+
+const nextInvoiceNumber = (last: string | undefined): string => {
+  if (!last) return 'TDM-001';
+  const match = last.match(/(\d+)$/);
+  if (!match) return 'FAC-001';
+  const next = parseInt(match[1], 10) + 1;
+  const padded = String(next).padStart(match[1].length, '0');
+  return last.replace(/\d+$/, padded);
+};
+
 const InvoiceGeneratorModal: React.FC<Props> = ({ isOpen, onClose, client, onGenerated }) => {
+  const cached = loadCached();
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([]);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [btwPercentage, setBtwPercentage] = useState(21);
+  const [kvkNumber, setKvkNumber] = useState(cached.kvkNumber || '');
+  const [btwId, setBtwId] = useState(cached.btwId || '');
+  const [iban, setIban] = useState(cached.iban || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,7 +37,7 @@ const InvoiceGeneratorModal: React.FC<Props> = ({ isOpen, onClose, client, onGen
         { description: 'Social Media Content E-mails', quantity: client.emailsSinceLastInvoice, unitPrice: 0, total: 0 },
         { description: 'Leadgeneratie', quantity: 0, unitPrice: 0, total: 0 },
       ]);
-      setInvoiceNumber(`FAC-${Date.now().toString().slice(-6)}`);
+      setInvoiceNumber(nextInvoiceNumber(loadCached().lastInvoiceNumber));
       setError('');
     }
   }, [client, isOpen]);
@@ -47,8 +65,9 @@ const InvoiceGeneratorModal: React.FC<Props> = ({ isOpen, onClose, client, onGen
 
   const handleGenerate = async () => {
     setError(''); setLoading(true);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ kvkNumber, btwId, iban, lastInvoiceNumber: invoiceNumber }));
     try {
-      const data: GenerateInvoiceData = { clientId: client.id, clientName: client.name, clientEmail: client.email, lineItems, subtotal, btwPercentage, btwAmount, grandTotal, invoiceDate: new Date().toISOString().split('T')[0], invoiceNumber };
+      const data: GenerateInvoiceData = { clientId: client.id, clientName: client.name, clientEmail: client.email, lineItems, subtotal, btwPercentage, btwAmount, grandTotal, invoiceDate: new Date().toISOString().split('T')[0], invoiceNumber, kvkNumber, btwId, iban };
       const blob = await invoiceApi.generate(data);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = `${invoiceNumber}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url);
@@ -69,6 +88,12 @@ const InvoiceGeneratorModal: React.FC<Props> = ({ isOpen, onClose, client, onGen
           <div><p className="text-xs font-medium text-[color:var(--c-text2)] uppercase">Klant</p><p className="text-sm font-semibold text-[color:var(--c-text)]">{client.name}</p></div>
           <div><p className="text-xs font-medium text-[color:var(--c-text2)] uppercase">E-mail</p><p className="text-sm text-[color:var(--c-text)]">{client.email}</p></div>
           <div><p className="text-xs font-medium text-[color:var(--c-text2)] uppercase">Factuurnr.</p><input type="text" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="text-sm px-2 py-1 border border-[color:var(--c-border)] rounded bg-[color:var(--c-bg)] text-[color:var(--c-text)]" /></div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div><p className="text-xs font-medium text-[color:var(--c-text2)] uppercase mb-1">KVK-nummer</p><input type="text" value={kvkNumber} onChange={(e) => setKvkNumber(e.target.value)} placeholder="12345678" className="w-full text-sm px-2 py-1 border border-[color:var(--c-border)] rounded bg-[color:var(--c-bg)] text-[color:var(--c-text)]" /></div>
+          <div><p className="text-xs font-medium text-[color:var(--c-text2)] uppercase mb-1">BTW-id</p><input type="text" value={btwId} onChange={(e) => setBtwId(e.target.value)} placeholder="NL123456789B01" className="w-full text-sm px-2 py-1 border border-[color:var(--c-border)] rounded bg-[color:var(--c-bg)] text-[color:var(--c-text)]" /></div>
+          <div><p className="text-xs font-medium text-[color:var(--c-text2)] uppercase mb-1">IBAN</p><input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="NL00BANK0123456789" className="w-full text-sm px-2 py-1 border border-[color:var(--c-border)] rounded bg-[color:var(--c-bg)] text-[color:var(--c-text)]" /></div>
         </div>
 
         <div className="mb-4">
