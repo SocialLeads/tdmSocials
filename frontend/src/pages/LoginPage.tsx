@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAppSelector } from '../store';
 import LoginForm from '../components/login/LoginForm';
-import SignUpForm from '../components/login/SignUpForm';
 
 const LoginPage: React.FC = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAppSelector((state) => state.user);
@@ -34,17 +32,11 @@ const LoginPage: React.FC = () => {
           )}
 
           <h2 className="mt-6 text-center text-3xl font-extrabold text-[color:var(--c-text)]">
-            {isSignUp ? 'Account aanmaken' : 'Inloggen'}
+            Inloggen
           </h2>
-          <p className="mt-2 text-center text-sm text-[color:var(--c-text2)]">
-            {isSignUp ? 'Heb je al een account?' : 'Nog geen account?'}{' '}
-            <button onClick={() => setIsSignUp(!isSignUp)} className="font-medium text-[color:var(--c-primary)] hover:opacity-80">
-              {isSignUp ? 'Inloggen' : 'Registreren'}
-            </button>
-          </p>
         </div>
         <div className="mt-8 space-y-6">
-          {isSignUp ? <SignUpForm /> : <LoginForm />}
+          <LoginForm />
         </div>
       </div>
     </div>

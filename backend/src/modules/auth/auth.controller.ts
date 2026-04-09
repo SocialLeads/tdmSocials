@@ -6,7 +6,6 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {
     LoginDto,
     LoginResponseDto,
-    RegisterDto,
     PasswordResetRequestDto,
     PasswordResetDto,
     ValidateResetTokenDto,
@@ -32,28 +31,6 @@ export class AuthController {
         this.logger.log(`Login attempt for identifier: ${loginDto.identifier}`);
 
         const { accessToken, refreshToken, user } = await this.authService.validateUser(loginDto.identifier, loginDto.password);
-
-        res.cookie('refresh_token', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/auth/refresh',
-        });
-
-        return res.json({
-            accessToken,
-            role: user.role,
-        } as LoginResponseDto);
-    }
-
-    @Post('register')
-    @Public()
-    @ApiOperation({ summary: 'User registration' })
-    async register(@Body() registerDto: RegisterDto, @Res() res: Response): Promise<Response> {
-        this.logger.log(`Registration attempt for username: ${registerDto.username}`);
-
-        const { accessToken, refreshToken, user } = await this.authService.registerUser(registerDto);
 
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
