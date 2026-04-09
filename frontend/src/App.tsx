@@ -12,6 +12,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import { UserRole } from './store/slices/userSlice';
 import DashboardPage from './pages/DashboardPage';
 import { applyTheme } from './config/theme/applyTheme';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   const appConfig = getAppConfig(process.env.REACT_APP_CONFIG as any);
@@ -25,26 +26,28 @@ function App() {
   }, [appConfig.theme]);
 
   return (
-    <ThemeProvider config={appConfig}>
-      <Provider store={store}>
-        <Router basename="/admin">
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/password-reset/:token" element={<PasswordResetPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute requireAuth requireRoles={[UserRole.ADMIN]}>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<DashboardPage />} />
-            </Route>
-          </Routes>
-        </Router>
-      </Provider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider config={appConfig}>
+        <Provider store={store}>
+          <Router basename="/admin">
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/password-reset/:token" element={<PasswordResetPage />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute requireAuth requireRoles={[UserRole.ADMIN]}>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<DashboardPage />} />
+              </Route>
+            </Routes>
+          </Router>
+        </Provider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -15,6 +15,14 @@ const AddClientModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,24 +39,16 @@ const AddClientModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
       onClose();
     } catch (err: any) {
       const msg = err.response?.data?.message;
-      setError(typeof msg === 'string' ? msg : msg?.message || 'Failed to create client');
+      setError(typeof msg === 'string' ? msg : msg?.message || 'Klant aanmaken mislukt');
     } finally {
       setLoading(false);
     }
   };
 
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (isOpen) document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="bg-[color:var(--c-bg)] rounded-xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-xl font-semibold text-[color:var(--c-text)] mb-4">Add Client</h2>
+        <h2 className="text-xl font-semibold text-[color:var(--c-text)] mb-4">Klant toevoegen</h2>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -58,57 +58,22 @@ const AddClientModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[color:var(--c-text2)] mb-1">Company Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-[color:var(--c-border)] rounded-lg bg-[color:var(--c-bg)] text-[color:var(--c-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--c-primary)]"
-              placeholder="Acme Corp"
-            />
+            <label className="block text-sm font-medium text-[color:var(--c-text2)] mb-1">Bedrijfsnaam</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 border border-[color:var(--c-border)] rounded-lg bg-[color:var(--c-bg)] text-[color:var(--c-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--c-primary)]" placeholder="Bedrijf B.V." />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-[color:var(--c-text2)] mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-[color:var(--c-border)] rounded-lg bg-[color:var(--c-bg)] text-[color:var(--c-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--c-primary)]"
-              placeholder="contact@acme.com"
-            />
+            <label className="block text-sm font-medium text-[color:var(--c-text2)] mb-1">E-mail</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-3 py-2 border border-[color:var(--c-border)] rounded-lg bg-[color:var(--c-bg)] text-[color:var(--c-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--c-primary)]" placeholder="info@bedrijf.nl" />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-[color:var(--c-text2)] mb-1">Industry</label>
-            <select
-              value={industry}
-              onChange={(e) => setIndustry(e.target.value)}
-              className="w-full px-3 py-2 border border-[color:var(--c-border)] rounded-lg bg-[color:var(--c-bg)] text-[color:var(--c-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--c-primary)]"
-            >
-              {INDUSTRIES.map((ind) => (
-                <option key={ind} value={ind}>{ind}</option>
-              ))}
+            <label className="block text-sm font-medium text-[color:var(--c-text2)] mb-1">Branche</label>
+            <select value={industry} onChange={(e) => setIndustry(e.target.value)} className="w-full px-3 py-2 border border-[color:var(--c-border)] rounded-lg bg-[color:var(--c-bg)] text-[color:var(--c-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--c-primary)]">
+              {INDUSTRIES.map((ind) => (<option key={ind} value={ind}>{ind}</option>))}
             </select>
           </div>
-
           <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-[color:var(--c-text2)] hover:text-[color:var(--c-text)] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 text-sm font-medium bg-[color:var(--c-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
-            >
-              {loading ? 'Adding...' : 'Add Client'}
-            </button>
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-[color:var(--c-text2)] hover:text-[color:var(--c-text)] transition-colors">Annuleren</button>
+            <button type="submit" disabled={loading} className="px-4 py-2 text-sm font-medium bg-[color:var(--c-primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity">{loading ? 'Toevoegen...' : 'Klant toevoegen'}</button>
           </div>
         </form>
       </div>

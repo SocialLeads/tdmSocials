@@ -22,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (isInitializing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[color:var(--c-bg)] text-[color:var(--c-text2)]">
-        Loading...
+        Laden...
       </div>
     );
   }
@@ -31,7 +31,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return (
       <Navigate
         to={redirectTo}
-        state={{ message: 'Please sign in to continue.', returnTo: location.pathname }}
+        state={{ message: 'Log in om verder te gaan.', returnTo: location.pathname }}
         replace
       />
     );
@@ -42,7 +42,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       return (
         <Navigate
           to={redirectTo}
-          state={{ message: 'You do not have access to that page.' }}
+          state={{ message: 'Je hebt geen toegang tot deze pagina.' }}
           replace
         />
       );

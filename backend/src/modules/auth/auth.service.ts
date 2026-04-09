@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { EntityNotFoundError } from 'typeorm';
 import { RegisterDto } from './auth.dto';
 import { TOKEN_TYPE } from './auth.types';
+import { MailService } from '../outgoing-communication/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
         private usersService: UsersService,
         private jwtService: JwtService,
         private configService: ConfigService,
+        private mailService: MailService,
     ) {}
 
     private async findByIdentifier(identifier: string): Promise<UserEntity> {
@@ -94,7 +96,9 @@ export class AuthService {
     async requestPasswordReset(email: string) {
         const user = await this.usersService.findByEmail(email);
         if (!user) {
-            throw new NotFoundException('User with this email does not exist');
+            // Don't reveal whether email exists — just log and return silently
+            this.logger.warn(`Password reset requested for unknown email: ${email}`);
+            return;
         }
 
         const token = this.jwtService.sign(
@@ -102,8 +106,24 @@ export class AuthService {
             { secret: this.resetTokenSecret, expiresIn: this.resetTokenExpiry },
         );
 
-        // TODO: send token via email provider
-        return { resetToken: token };
+        const frontendDomain = this.configService.get<string>('app.frontendDomain', 'http://localhost:3000');
+        const baseUrl = frontendDomain.split(',')[0].trim();
+        const resetUrl = `${baseUrl}/admin/password-reset/${token}`;
+
+        await this.mailService.sendMail({
+            to: email,
+            subject: 'TDM Socials — Wachtwoord resetten',
+            html: `
+                <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
+                    <h2>Wachtwoord resetten</h2>
+                    <p>Er is een verzoek ingediend om je wachtwoord te resetten.</p>
+                    <p><a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">Wachtwoord resetten</a></p>
+                    <p style="font-size:13px;color:#6b7280;">Deze link is 15 minuten geldig. Als je dit verzoek niet hebt gedaan, kun je deze e-mail negeren.</p>
+                </div>
+            `,
+        });
+
+        this.logger.log(`Password reset email sent to ${email}`);
     }
 
     async validateResetToken(token: string) {

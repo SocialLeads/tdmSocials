@@ -1,8 +1,4 @@
-{
-  auto_https off
-}
-
-:80 {
+tdmsocials.nl, www.tdmsocials.nl {
   handle_path /api/* {
     reverse_proxy backend_green:4000
   }

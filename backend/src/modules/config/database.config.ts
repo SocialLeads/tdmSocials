@@ -10,7 +10,6 @@ config();
 
 // ✅ Load configuration for both NestJS & CLI
 const appConfig = getConfig();
-console.log(appConfig);
 
 // const entities: Function[] = [
 //     WorkerEntity as Function,
@@ -30,12 +29,8 @@ export const getTypeOrmConfig = (): TypeOrmModuleOptions => {
     const shouldSync = process.env.DB_SYNC === 'true' && process.env.DB_SYNC_CONFIRM === 'YES_I_WANT_TO_DROP_DATA';
     
     if (process.env.DB_SYNC === 'true' && process.env.DB_SYNC_CONFIRM !== 'YES_I_WANT_TO_DROP_DATA') {
-        console.error('⚠️  WARNING: DB_SYNC is true but DB_SYNC_CONFIRM is not set to "YES_I_WANT_TO_DROP_DATA"');
-        console.error('⚠️  Database synchronization is DISABLED for safety.');
-        console.error('⚠️  To enable sync (WILL DROP DATA), set: DB_SYNC_CONFIRM=YES_I_WANT_TO_DROP_DATA');
+        process.stderr.write('[TypeORM] WARNING: DB_SYNC is true but DB_SYNC_CONFIRM is not set. Sync DISABLED for safety.\n');
     }
-    
-    console.log('TypeORM Synchronize:', shouldSync, 'NODE_ENV:', process.env.NODE_ENV, 'DB_SYNC:', process.env.DB_SYNC, 'DB_SYNC_CONFIRM:', process.env.DB_SYNC_CONFIRM);
     
     return {
         type: 'postgres' as const,

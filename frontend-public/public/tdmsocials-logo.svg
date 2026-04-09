@@ -1,0 +1,22 @@
+<svg width="300" height="72" viewBox="0 0 300 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bubbleGrad" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;800&amp;display=swap');
+    </style>
+  </defs>
+
+  <rect x="4" y="4" width="52" height="44" rx="10" fill="url(#bubbleGrad)"/>
+  <path d="M14 48 L8 64 L30 48 Z" fill="url(#bubbleGrad)"/>
+
+  <rect x="15" y="30" width="9" height="14" rx="2.5" fill="white" opacity="0.9"/>
+  <rect x="28" y="22" width="9" height="22" rx="2.5" fill="white" opacity="0.9"/>
+  <rect x="41" y="14" width="9" height="30" rx="2.5" fill="white" opacity="0.9"/>
+
+  <text x="76" y="46" font-family="'Outfit', 'Trebuchet MS', Arial, sans-serif">
+    <tspan font-size="30" font-weight="800" fill="#94A3B8">tdm</tspan><tspan font-size="30" font-weight="300" fill="#0F172A">socials</tspan>
+  </text>
+</svg>

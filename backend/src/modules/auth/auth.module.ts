@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
+import { OutgoingCommunicationModule } from '../outgoing-communication/outgoing-communication.module';
 import { AuthController } from './auth.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
@@ -13,12 +14,13 @@ import { APP_GUARD } from '@nestjs/core';
   imports: [
     ConfigModule,
     forwardRef(() => UsersModule),
+    OutgoingCommunicationModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('app.jwtSecret', 'superSecret123'),
+        secret: configService.get<string>('app.jwtSecret'),
         signOptions: { expiresIn: configService.get<string>('app.jwtAccessExpiry', '1h') },
       }),
     }),

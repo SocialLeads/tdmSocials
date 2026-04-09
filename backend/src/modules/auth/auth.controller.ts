@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Req, Res, Logger, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Req, Res, Logger, UnauthorizedException, Inject } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -94,19 +95,11 @@ export class AuthController {
 
     @Post('password-reset/request')
     @Public()
-    @ApiOperation({ summary: 'Request password reset token' })
+    @Throttle({ default: { limit: 3, ttl: 3600 } })
+    @ApiOperation({ summary: 'Request password reset email' })
     async requestPasswordReset(@Body() body: PasswordResetRequestDto, @Res() res: Response) {
-        const { resetToken } = await this.authService.requestPasswordReset(body.email);
-
-        res.cookie('reset_token', resetToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 15 * 60 * 1000,
-            path: '/auth/password-reset/confirm',
-        });
-
-        return res.json({ message: 'Password reset token issued' });
+        await this.authService.requestPasswordReset(body.email);
+        return res.json({ message: 'If the email exists, a reset link has been sent.' });
     }
 
     @Post('password-reset/validate')

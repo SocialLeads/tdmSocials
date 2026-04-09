@@ -6,7 +6,8 @@ import { UserEntity } from '../modules/users/users.entity';
 import { ClientEntity } from '../modules/clients/client.entity';
 import { config } from 'dotenv';
 
-// Load environment variables
+// Load environment variables (try .env.local first, then .env)
+config({ path: '.env.local' });
 config();
 
 // Load configuration for both NestJS & CLI

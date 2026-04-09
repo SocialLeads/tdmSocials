@@ -127,15 +127,15 @@ export class ContentProcessorService {
     if (!adminEmail) return;
 
     const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
-    const now = new Date().toLocaleString('en-GB', { timeZone: 'Europe/Amsterdam' });
+    const now = new Date().toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam' });
     const hasErrors = failed > 0 || failedIndustries.length > 0;
-    const status = hasErrors ? 'Issues Detected' : 'All Good';
+    const status = hasErrors ? 'Problemen gedetecteerd' : 'Alles goed';
 
     let errorsHtml = '';
     if (failedIndustries.length > 0) {
       errorsHtml += `
-        <h3 style="color:#dc2626;margin:16px 0 8px;">AI Generation Failures</h3>
-        <p style="font-size:14px;color:#4b5563;">Content generation failed for these industries — no emails were sent to clients in these sectors:</p>
+        <h3 style="color:#dc2626;margin:16px 0 8px;">AI-generatie mislukt</h3>
+        <p style="font-size:14px;color:#4b5563;">Contentgeneratie is mislukt voor deze branches — er zijn geen e-mails verstuurd naar klanten in deze sectoren:</p>
         <ul style="font-size:14px;color:#4b5563;">
           ${failedIndustries.map((i) => `<li>${i}</li>`).join('')}
         </ul>`;
@@ -143,12 +143,12 @@ export class ContentProcessorService {
 
     if (clientErrors.length > 0) {
       errorsHtml += `
-        <h3 style="color:#dc2626;margin:16px 0 8px;">Failed Deliveries</h3>
+        <h3 style="color:#dc2626;margin:16px 0 8px;">Mislukte verzendingen</h3>
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
           <tr style="background:#fee2e2;">
-            <th style="text-align:left;padding:8px;border:1px solid #fecaca;">Client</th>
-            <th style="text-align:left;padding:8px;border:1px solid #fecaca;">Industry</th>
-            <th style="text-align:left;padding:8px;border:1px solid #fecaca;">Error</th>
+            <th style="text-align:left;padding:8px;border:1px solid #fecaca;">Klant</th>
+            <th style="text-align:left;padding:8px;border:1px solid #fecaca;">Branche</th>
+            <th style="text-align:left;padding:8px;border:1px solid #fecaca;">Fout</th>
           </tr>
           ${clientErrors
             .map(
@@ -167,38 +167,38 @@ export class ContentProcessorService {
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;">
         <div style="background:${hasErrors ? '#fef2f2' : '#f0fdf4'};border-left:4px solid ${hasErrors ? '#dc2626' : '#16a34a'};padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:20px;">
           <h2 style="margin:0 0 4px;font-size:18px;color:${hasErrors ? '#dc2626' : '#16a34a'};">
-            Daily Content Report — ${status}
+            Dagelijks rapport — ${status}
           </h2>
-          <p style="margin:0;font-size:13px;color:#6b7280;">${now} | Duration: ${durationSec}s</p>
+          <p style="margin:0;font-size:13px;color:#6b7280;">${now} | Duur: ${durationSec}s</p>
         </div>
 
         <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:14px;">
           <tr>
-            <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">Emails Sent</td>
+            <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">E-mails verzonden</td>
             <td style="padding:10px 16px;border:1px solid #e5e7eb;color:#16a34a;font-weight:700;font-size:18px;">${sent}</td>
           </tr>
           <tr>
-            <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">Emails Failed</td>
+            <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">E-mails mislukt</td>
             <td style="padding:10px 16px;border:1px solid #e5e7eb;color:${failed > 0 ? '#dc2626' : '#16a34a'};font-weight:700;font-size:18px;">${failed}</td>
           </tr>
           <tr>
-            <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">Industries Processed</td>
-            <td style="padding:10px 16px;border:1px solid #e5e7eb;">${totalIndustries} (${failedIndustries.length} failed)</td>
+            <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">Branches verwerkt</td>
+            <td style="padding:10px 16px;border:1px solid #e5e7eb;">${totalIndustries} (${failedIndustries.length} mislukt)</td>
           </tr>
         </table>
 
         ${errorsHtml}
 
-        ${!hasErrors ? '<p style="font-size:14px;color:#16a34a;">All emails delivered successfully. No errors.</p>' : ''}
+        ${!hasErrors ? '<p style="font-size:14px;color:#16a34a;">Alle e-mails succesvol afgeleverd. Geen fouten.</p>' : ''}
 
         <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
-        <p style="font-size:12px;color:#9ca3af;">TDM Socials — Automated daily report</p>
+        <p style="font-size:12px;color:#9ca3af;">TDM Socials — Automatisch dagelijks rapport</p>
       </div>`;
 
     try {
       await this.mailService.sendMail({
         to: adminEmail,
-        subject: `[TDM Socials] Daily Report: ${sent} sent, ${failed} failed — ${status}`,
+        subject: `[TDM Socials] Dagrapport: ${sent} verzonden, ${failed} mislukt — ${status}`,
         html,
       });
       this.logger.log('Admin report email sent');

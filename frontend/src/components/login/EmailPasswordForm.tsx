@@ -11,11 +11,7 @@ interface EmailPasswordFormProps {
 }
 
 const EmailPasswordForm: React.FC<EmailPasswordFormProps> = ({
-  onSubmit,
-  isLoading,
-  submitText,
-  showDisplayName = false,
-  onForgotPassword
+  onSubmit, isLoading, submitText, showDisplayName = false, onForgotPassword,
 }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,103 +20,43 @@ const EmailPasswordForm: React.FC<EmailPasswordFormProps> = ({
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email is invalid';
-    }
-
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (showDisplayName && !displayName) {
-      newErrors.displayName = 'Display name is required';
-    }
-
+    if (!email) { newErrors.email = 'E-mail is verplicht'; }
+    else if (!/\S+@\S+\.\S+/.test(email)) { newErrors.email = 'Ongeldig e-mailadres'; }
+    if (!password) { newErrors.password = 'Wachtwoord is verplicht'; }
+    else if (password.length < 6) { newErrors.password = 'Wachtwoord moet minimaal 6 tekens bevatten'; }
+    if (showDisplayName && !displayName) { newErrors.displayName = 'Weergavenaam is verplicht'; }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      onSubmit(email, password, showDisplayName ? displayName : undefined);
-    }
+    if (validateForm()) { onSubmit(email, password, showDisplayName ? displayName : undefined); }
   };
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       {showDisplayName && (
         <div>
-          <label htmlFor="displayName" className="sr-only">
-            Display Name
-          </label>
-          <Input
-            id="displayName"
-            name="displayName"
-            type="text"
-            required={showDisplayName}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Display Name"
-            error={errors.displayName}
-          />
+          <label htmlFor="displayName" className="sr-only">Weergavenaam</label>
+          <Input id="displayName" name="displayName" type="text" required={showDisplayName} value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Weergavenaam" error={errors.displayName} />
         </div>
       )}
-
       <div>
-        <label htmlFor="email" className="sr-only">
-          Email address
-        </label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email address"
-          error={errors.email}
-        />
+        <label htmlFor="email" className="sr-only">E-mailadres</label>
+        <Input id="email" name="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mailadres" error={errors.email} />
       </div>
-
       <div>
-        <label htmlFor="password" className="sr-only">
-          Password
-        </label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          error={errors.password}
-        />
+        <label htmlFor="password" className="sr-only">Wachtwoord</label>
+        <Input id="password" name="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Wachtwoord" error={errors.password} />
       </div>
-
       {!showDisplayName && onForgotPassword && (
         <div className="text-right">
-          <button
-            type="button"
-            onClick={onForgotPassword}
-            className="text-sm text-[color:var(--c-primary)] hover:opacity-80 font-medium"
-          >
-            Forgot password?
-          </button>
+          <button type="button" onClick={onForgotPassword} className="text-sm text-[color:var(--c-primary)] hover:opacity-80 font-medium">Wachtwoord vergeten?</button>
         </div>
       )}
-
       <div>
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? 'Loading...' : submitText}
-        </Button>
+        <Button type="submit" disabled={isLoading} className="w-full">{isLoading ? 'Laden...' : submitText}</Button>
       </div>
     </form>
   );

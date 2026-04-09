@@ -4,9 +4,7 @@ import { Alert } from '../../config/theme/ui/Alert';
 import { Button } from '../../config/theme/ui/Button';
 import { Input } from '../../config/theme/ui/Input';
 
-interface ForgotPasswordFormProps {
-  onBack: () => void;
-}
+interface ForgotPasswordFormProps { onBack: () => void; }
 
 const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }) => {
   const [email, setEmail] = useState('');
@@ -16,29 +14,15 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email) {
-      setError('Email is required');
-      return;
-    }
-
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
+    if (!email) { setError('E-mail is verplicht'); return; }
+    if (!/\S+@\S+\.\S+/.test(email)) { setError('Voer een geldig e-mailadres in'); return; }
     try {
-      setIsLoading(true);
-      setError(null);
-      
+      setIsLoading(true); setError(null);
       await authApi.requestPasswordReset(email);
       setIsSubmitted(true);
     } catch (error: any) {
-      console.error('Forgot password error:', error);
-      setError(error.response?.data?.message || 'Failed to send reset email. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+      setError(error.response?.data?.message || 'Reset e-mail versturen mislukt. Probeer het opnieuw.');
+    } finally { setIsLoading(false); }
   };
 
   if (isSubmitted) {
@@ -52,26 +36,15 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }) => {
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-[color:var(--c-success)]">
-                Reset email sent!
-              </h3>
+              <h3 className="text-sm font-medium text-[color:var(--c-success)]">Reset e-mail verzonden!</h3>
               <div className="mt-2 text-sm text-[color:var(--c-text2)]">
-                <p>
-                  We've sent a password reset link to <strong>{email}</strong>. 
-                  Please check your email and follow the instructions to reset your password.
-                </p>
+                <p>We hebben een wachtwoord-resetlink gestuurd naar <strong>{email}</strong>. Controleer je e-mail en volg de instructies om je wachtwoord te resetten.</p>
               </div>
             </div>
           </div>
         </div>
-
         <div className="text-center">
-          <button
-            onClick={onBack}
-            className="text-sm text-[color:var(--c-primary)] hover:opacity-80 font-medium"
-          >
-            ← Back to sign in
-          </button>
+          <button onClick={onBack} className="text-sm text-[color:var(--c-primary)] hover:opacity-80 font-medium">&larr; Terug naar inloggen</button>
         </div>
       </div>
     );
@@ -80,40 +53,18 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-[color:var(--c-text)]">Reset your password</h3>
-        <p className="mt-1 text-sm text-[color:var(--c-text2)]">
-          Enter your email address and we'll send you a link to reset your password.
-        </p>
+        <h3 className="text-lg font-medium text-[color:var(--c-text)]">Wachtwoord resetten</h3>
+        <p className="mt-1 text-sm text-[color:var(--c-text2)]">Voer je e-mailadres in en we sturen je een link om je wachtwoord te resetten.</p>
       </div>
-
       <form onSubmit={handleSubmit} className="space-y-6">
-        {error && (
-          <Alert message={error} variant="error" />
-        )}
-
+        {error && <Alert message={error} variant="error" />}
         <div>
-          <label htmlFor="email" className="sr-only">
-            Email address
-          </label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-          />
+          <label htmlFor="email" className="sr-only">E-mailadres</label>
+          <Input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Voer je e-mailadres in" />
         </div>
-
         <div className="flex space-x-3">
-          <Button type="button" variant="ghost" onClick={onBack} className="flex-1">
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading} className="flex-1">
-            {isLoading ? 'Sending...' : 'Send reset link'}
-          </Button>
+          <Button type="button" variant="ghost" onClick={onBack} className="flex-1">Annuleren</Button>
+          <Button type="submit" disabled={isLoading} className="flex-1">{isLoading ? 'Verzenden...' : 'Resetlink versturen'}</Button>
         </div>
       </form>
     </div>

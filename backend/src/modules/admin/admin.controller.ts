@@ -10,6 +10,14 @@ import { IsString, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 class ContactFormDto {
   @IsString()
   @IsNotEmpty()
@@ -70,13 +78,13 @@ export class AdminController {
 
     await this.mailService.sendMail({
       to: adminEmail,
-      subject: `Contact Form: ${dto.name}`,
+      subject: `Contact Form: ${escapeHtml(dto.name)}`,
       html: `
         <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${dto.name}</p>
-        <p><strong>Email:</strong> ${dto.email}</p>
+        <p><strong>Name:</strong> ${escapeHtml(dto.name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(dto.email)}</p>
         <p><strong>Message:</strong></p>
-        <p>${dto.message}</p>
+        <p>${escapeHtml(dto.message)}</p>
       `,
       replyTo: dto.email,
     });

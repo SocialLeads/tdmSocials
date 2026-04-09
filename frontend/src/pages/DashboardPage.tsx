@@ -3,6 +3,7 @@ import { clientsApi, Client } from '../api/clients.api';
 import AddClientModal from '../components/AddClientModal';
 import EditClientModal from '../components/EditClientModal';
 import InvoiceGeneratorModal from '../components/InvoiceGeneratorModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 const DashboardPage: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -13,13 +14,14 @@ const DashboardPage: React.FC = () => {
   const [invoiceClient, setInvoiceClient] = useState<Client | null>(null);
   const [triggeringCron, setTriggeringCron] = useState(false);
   const [cronResult, setCronResult] = useState<string | null>(null);
+  const [showCronConfirm, setShowCronConfirm] = useState(false);
 
   const fetchClients = useCallback(async () => {
     try {
       const data = await clientsApi.getAll();
       setClients(data);
     } catch (error) {
-      console.error('Failed to fetch clients:', error);
+      console.error('Klanten ophalen mislukt:', error);
     } finally {
       setLoading(false);
     }
@@ -30,24 +32,25 @@ const DashboardPage: React.FC = () => {
   }, [fetchClients]);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this client?')) return;
+    if (!window.confirm('Weet je zeker dat je deze klant wilt verwijderen?')) return;
     try {
       await clientsApi.delete(id);
       fetchClients();
     } catch (error) {
-      console.error('Failed to delete client:', error);
+      console.error('Klant verwijderen mislukt:', error);
     }
   };
 
   const handleTriggerCron = async () => {
+    setShowCronConfirm(false);
     setTriggeringCron(true);
     setCronResult(null);
     try {
       const result = await clientsApi.triggerDailyCron();
-      setCronResult(`Sent: ${result.sent}, Failed: ${result.failed}`);
+      setCronResult(`Verzonden: ${result.sent}, Mislukt: ${result.failed}`);
       fetchClients();
     } catch (error) {
-      setCronResult('Failed to trigger cron');
+      setCronResult('Dagelijkse e-mails versturen mislukt');
     } finally {
       setTriggeringCron(false);
     }
@@ -62,26 +65,26 @@ const DashboardPage: React.FC = () => {
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString();
+    return new Date(dateStr).toLocaleDateString('nl-NL');
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[color:var(--c-text)]">Clients</h1>
+        <h1 className="text-2xl font-bold text-[color:var(--c-text)]">Klanten</h1>
         <div className="flex gap-3">
           <button
-            onClick={handleTriggerCron}
+            onClick={() => setShowCronConfirm(true)}
             disabled={triggeringCron}
             className="px-4 py-2 text-sm font-medium border border-[color:var(--c-border)] text-[color:var(--c-text)] rounded-lg hover:bg-[color:var(--c-bg2,#f3f4f6)] disabled:opacity-50"
           >
-            {triggeringCron ? 'Sending...' : 'Send Daily Emails'}
+            {triggeringCron ? 'Verzenden...' : 'Dagelijkse e-mails versturen'}
           </button>
           <button
             onClick={() => setShowAddModal(true)}
             className="px-4 py-2 text-sm font-medium bg-[color:var(--c-primary)] text-white rounded-lg hover:opacity-90"
           >
-            + Add Client
+            + Klant toevoegen
           </button>
         </div>
       </div>
@@ -92,37 +95,35 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Search */}
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search by name, email, or industry..."
+          placeholder="Zoeken op naam, e-mail of branche..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-md px-4 py-2 border border-[color:var(--c-border)] rounded-lg bg-[color:var(--c-bg)] text-[color:var(--c-text)] focus:outline-none focus:ring-2 focus:ring-[color:var(--c-primary)]"
         />
       </div>
 
-      {/* Table */}
       {loading ? (
-        <p className="text-[color:var(--c-text2)]">Loading...</p>
+        <p className="text-[color:var(--c-text2)]">Laden...</p>
       ) : filteredClients.length === 0 ? (
         <div className="text-center py-12 text-[color:var(--c-text2)]">
-          <p className="text-lg mb-2">No clients yet</p>
-          <p className="text-sm">Add your first client to get started.</p>
+          <p className="text-lg mb-2">Nog geen klanten</p>
+          <p className="text-sm">Voeg je eerste klant toe om te beginnen.</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-[color:var(--c-border)]">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[color:var(--c-bg2,#f9fafb)]">
-                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">Name</th>
-                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">Email</th>
-                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">Industry</th>
-                <th className="text-center px-4 py-3 font-medium text-[color:var(--c-text2)]">Total Emails</th>
-                <th className="text-center px-4 py-3 font-medium text-[color:var(--c-text2)]">Since Invoice</th>
-                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">Last Invoice</th>
-                <th className="text-right px-4 py-3 font-medium text-[color:var(--c-text2)]">Actions</th>
+                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">Naam</th>
+                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">E-mail</th>
+                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">Branche</th>
+                <th className="text-center px-4 py-3 font-medium text-[color:var(--c-text2)]">Totaal e-mails</th>
+                <th className="text-center px-4 py-3 font-medium text-[color:var(--c-text2)]">Sinds factuur</th>
+                <th className="text-left px-4 py-3 font-medium text-[color:var(--c-text2)]">Laatste factuur</th>
+                <th className="text-right px-4 py-3 font-medium text-[color:var(--c-text2)]">Acties</th>
               </tr>
             </thead>
             <tbody>
@@ -142,21 +143,21 @@ const DashboardPage: React.FC = () => {
                     <button
                       onClick={() => setEditClient(client)}
                       className="text-xs px-3 py-1 bg-[color:var(--c-primary)] text-white rounded hover:opacity-90 mr-2"
-                      title="Edit client"
+                      title="Klant bewerken"
                     >
-                      Edit
+                      Bewerken
                     </button>
                     <button
                       onClick={() => setInvoiceClient(client)}
                       className="text-xs px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 mr-2"
                     >
-                      Invoice
+                      Factuur
                     </button>
                     <button
                       onClick={() => handleDelete(client.id)}
                       className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                     >
-                      Delete
+                      Verwijderen
                     </button>
                   </td>
                 </tr>
@@ -184,6 +185,20 @@ const DashboardPage: React.FC = () => {
         onClose={() => setInvoiceClient(null)}
         client={invoiceClient}
         onGenerated={fetchClients}
+      />
+
+      <ConfirmModal
+        isOpen={showCronConfirm}
+        onClose={() => setShowCronConfirm(false)}
+        onConfirm={handleTriggerCron}
+        title="E-mails handmatig versturen"
+        message="Dit verstuurt direct e-mails naar alle actieve klanten. Gebruik dit alleen voor:"
+        bullets={[
+          'Testen in een ontwikkelomgeving',
+          'Handmatig opnieuw versturen als de dagelijkse cron is mislukt',
+        ]}
+        confirmLabel="Ja, versturen"
+        confirmVariant="danger"
       />
     </div>
   );

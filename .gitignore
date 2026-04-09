@@ -15,3 +15,6 @@ infra/env/frontend.env
 # Docker volumes
 pg_data
 redis_data
+
+# DB backups
+infra/backups/*.sql.gz

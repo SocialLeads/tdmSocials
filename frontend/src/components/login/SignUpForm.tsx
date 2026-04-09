@@ -14,13 +14,11 @@ const SignUpForm: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-
       await authService.registerUser(email, password, displayName);
-
       const from = location.state?.from?.pathname || location.state?.returnTo || '/';
       navigate(from, { replace: true });
     } catch (error: any) {
-      setError(error?.response?.data?.message || 'Sign up failed. Please try again.');
+      setError(error?.response?.data?.message || 'Registratie mislukt. Probeer het opnieuw.');
     } finally {
       setIsLoading(false);
     }
@@ -29,12 +27,7 @@ const SignUpForm: React.FC = () => {
   return (
     <div className="space-y-6">
       {error && <Alert message={error} variant="error" />}
-      <EmailPasswordForm
-        onSubmit={handleEmailPasswordSignUp}
-        isLoading={isLoading}
-        submitText="Sign up"
-        showDisplayName={true}
-      />
+      <EmailPasswordForm onSubmit={handleEmailPasswordSignUp} isLoading={isLoading} submitText="Registreren" showDisplayName={true} />
     </div>
   );
 };

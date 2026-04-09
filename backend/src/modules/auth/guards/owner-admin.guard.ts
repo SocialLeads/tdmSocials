@@ -11,8 +11,7 @@ export class OwnerOrAdminGuard implements CanActivate {
         const user: UserEntity = request.user; // ✅ Now should be fully typed
         const requestedUsername = request.params.username;
 
-        // 🔥 DEBUG LOGGING (REMOVE IN PRODUCTION)
-        this.logger.log(`Checking access for user: ${JSON.stringify(user)}`);
+        this.logger.debug(`Checking access for user: ${user?.username}`);
 
         if (!user) {
             this.logger.warn(`Access denied: No user found in request.`);

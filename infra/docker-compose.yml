@@ -15,6 +15,20 @@ services:
       - backend_blue
       - backend_green
 
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - ./env/backend.env
+    environment:
+      POSTGRES_USER: ${DB_USER:-nestuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-backend_db}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -31,6 +45,7 @@ services:
     env_file:
       - ./env/backend.env
     depends_on:
+      - db
       - redis
     expose:
       - "4000"
@@ -43,6 +58,7 @@ services:
     env_file:
       - ./env/backend.env
     depends_on:
+      - db
       - redis
     expose:
       - "4000"
@@ -70,4 +86,5 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  pg_data:
   redis_data:
