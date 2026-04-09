@@ -34,7 +34,7 @@ wait_backend_healthy() {
   local svc="$1"
   log "Waiting for ${svc} to become healthy (/health/live)..."
   for i in {1..60}; do
-    if $COMPOSE exec -T "$svc" sh -lc 'wget -qO- http://127.0.0.1:4000/health/live | grep -q "ok"' 2>/dev/null; then
+    if $COMPOSE exec -T "$svc" node -e "require('http').get('http://127.0.0.1:4000/health/live',r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>process.exit(d.includes('ok')?0:1))}).on('error',()=>process.exit(1))" 2>/dev/null; then
       log "${svc} is healthy."
       return 0
     fi
