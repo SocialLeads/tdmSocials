@@ -4,14 +4,23 @@ import { InvoiceData } from './invoice.types';
 @Injectable()
 export class InvoiceTemplateService {
   generateHtml(data: InvoiceData): string {
+    // Calculate vervaldatum (14 days after invoice date)
+    const invoiceDate = new Date(data.invoiceDate);
+    const vervalDate = new Date(invoiceDate);
+    vervalDate.setDate(vervalDate.getDate() + 14);
+    const formatDate = (d: Date) => d.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+    const invoiceDateStr = formatDate(invoiceDate);
+    const vervalDateStr = formatDate(vervalDate);
+
     const lineItemsHtml = data.lineItems
       .map(
         (item) => `
       <tr>
-        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;">${item.description}</td>
-        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;text-align:center;">${item.quantity}</td>
-        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;text-align:right;">€${item.unitPrice.toFixed(2)}</td>
-        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;text-align:right;font-weight:600;">€${item.total.toFixed(2)}</td>
+        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;text-align:center;">${item.quantity}x</td>
+        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;white-space:pre-line;">${item.description}</td>
+        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;text-align:right;">&euro; ${item.unitPrice.toFixed(2).replace('.', ',')}</td>
+        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;text-align:right;font-weight:600;">&euro; ${item.total.toFixed(2).replace('.', ',')}</td>
+        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#374151;text-align:right;">${data.btwPercentage}%</td>
       </tr>`,
       )
       .join('');
@@ -30,23 +39,22 @@ export class InvoiceTemplateService {
 </head>
 <body>
   <div style="max-width:800px;margin:0 auto;padding:48px 40px;">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;">
-      <div>
-        <h1 style="font-size:32px;font-weight:700;color:#4f46e5;margin-bottom:4px;">TDM Socials</h1>
-        <p style="font-size:13px;color:#6b7280;line-height:1.6;">
-          Heuvelstraat 27b<br/>
-          4812 PG Breda<br/>
-          info@tdmsocials.nl<br/>
-          KVK: ${data.kvkNumber || '-'}<br/>
-          BTW: ${data.btwId || '-'}
-        </p>
-      </div>
-      <div style="text-align:right;">
-        <p style="font-size:14px;color:#6b7280;">Factuurnr.</p>
-        <p style="font-size:16px;font-weight:600;color:#111827;margin-bottom:12px;">${data.invoiceNumber}</p>
-        <p style="font-size:14px;color:#6b7280;">Datum</p>
-        <p style="font-size:16px;font-weight:600;color:#111827;">${data.invoiceDate}</p>
-      </div>
+
+    <div style="text-align:right;margin-bottom:40px;line-height:1.6;">
+      <p style="font-size:18px;font-weight:700;color:#111827;">TDM AUTO &amp; SOCIAL SOLUTIONS</p>
+      <p style="font-size:13px;color:#6b7280;">
+        Eduard meijerslaan 17<br/>
+        5042 ML Tilburg
+      </p>
+      <p style="font-size:13px;color:#6b7280;margin-top:8px;">
+        Info@tdmsocials.com<br/>
+        0629212304
+      </p>
+      <p style="font-size:13px;color:#6b7280;margin-top:8px;">
+        KVK: 98790595<br/>
+        Btw: NL005353984B34<br/>
+        Bank: NL08 ABNA 0150 2705 85
+      </p>
     </div>
 
     <div style="margin-bottom:40px;padding:20px;background:#f9fafb;border-radius:8px;">
@@ -55,13 +63,22 @@ export class InvoiceTemplateService {
       <p style="font-size:14px;color:#6b7280;">${data.clientEmail}</p>
     </div>
 
-    <table style="width:100%;border-collapse:collapse;margin-bottom:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;">
+      <h2 style="font-size:24px;font-weight:700;color:#111827;">Factuur ${data.invoiceNumber}</h2>
+      <table style="font-size:13px;color:#374151;border-collapse:collapse;">
+        <tr><td style="padding:4px 16px 4px 0;color:#6b7280;">Factuurdatum:</td><td style="padding:4px 0;font-weight:600;">${invoiceDateStr}</td></tr>
+        <tr><td style="padding:4px 16px 4px 0;color:#6b7280;">Vervaldatum:</td><td style="padding:4px 0;font-weight:600;">${vervalDateStr}</td></tr>
+      </table>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
       <thead>
-        <tr style="background:#f3f4f6;">
-          <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Omschrijving</th>
-          <th style="padding:12px 16px;text-align:center;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Aantal</th>
-          <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Stuksprijs</th>
-          <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Totaal</th>
+        <tr style="border-bottom:2px solid #111827;">
+          <th style="padding:12px 16px;text-align:center;font-size:12px;font-weight:600;color:#111827;text-transform:uppercase;width:60px;"></th>
+          <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:600;color:#111827;text-transform:uppercase;">Omschrijving</th>
+          <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:#111827;text-transform:uppercase;">Bedrag</th>
+          <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:#111827;text-transform:uppercase;">Totaal</th>
+          <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:#111827;text-transform:uppercase;">Btw</th>
         </tr>
       </thead>
       <tbody>
@@ -70,27 +87,25 @@ export class InvoiceTemplateService {
     </table>
 
     <div style="display:flex;justify-content:flex-end;margin-bottom:48px;">
-      <div style="width:280px;">
-        <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:#6b7280;">
-          <span>Subtotaal</span>
-          <span>€${data.subtotal.toFixed(2)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:#6b7280;border-bottom:1px solid #e5e7eb;">
-          <span>BTW ${data.btwPercentage}%</span>
-          <span>€${data.btwAmount.toFixed(2)}</span>
-        </div>
-        <div style="background:#4f46e5;color:#ffffff;padding:16px 20px;border-radius:8px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:12px;opacity:0.8;">TOTAAL INCL. BTW</span>
-          <span style="font-size:24px;font-weight:700;">€${data.grandTotal.toFixed(2)}</span>
-        </div>
-      </div>
+      <table style="border-collapse:collapse;font-size:14px;min-width:280px;">
+        <tr>
+          <td style="padding:8px 24px 8px 0;color:#6b7280;text-align:right;font-weight:600;">Subtotaal</td>
+          <td style="padding:8px 0;text-align:right;color:#374151;">&euro; ${data.subtotal.toFixed(2).replace('.', ',')}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:8px 24px 8px 0;color:#6b7280;text-align:right;font-weight:600;">${data.btwPercentage}% btw</td>
+          <td style="padding:8px 0;text-align:right;color:#374151;">&euro; ${data.btwAmount.toFixed(2).replace('.', ',')}</td>
+        </tr>
+        <tr>
+          <td style="padding:12px 24px 12px 0;text-align:right;font-weight:700;font-size:16px;color:#111827;">Totaal</td>
+          <td style="padding:12px 0;text-align:right;font-weight:700;font-size:16px;color:#111827;">&euro; ${data.grandTotal.toFixed(2).replace('.', ',')}</td>
+        </tr>
+      </table>
     </div>
 
     <div style="border-top:1px solid #e5e7eb;padding-top:24px;">
-      <p style="font-size:12px;color:#9ca3af;text-align:center;">
-        Betaling binnen 14 dagen op onderstaand rekeningnummer.<br/>
-        IBAN: ${data.iban || '-'}&nbsp;&nbsp;|&nbsp;&nbsp;t.n.v. TDM Socials<br/><br/>
-        TDM Socials | Heuvelstraat 27b, 4812 PG Breda | info@tdmsocials.nl | tdmsocials.nl
+      <p style="font-size:13px;color:#374151;line-height:1.6;">
+        We verzoeken u vriendelijk het bovenstaande bedrag van &euro; ${data.grandTotal.toFixed(2).replace('.', ',')} voor ${vervalDateStr} te voldoen op onze bankrekening onder vermelding van de omschrijving ${data.invoiceNumber}. Voor vragen kunt u contact opnemen per e-mail.
       </p>
     </div>
   </div>

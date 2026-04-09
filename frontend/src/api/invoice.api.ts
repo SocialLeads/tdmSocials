@@ -18,9 +18,6 @@ export interface GenerateInvoiceData {
   grandTotal: number;
   invoiceDate: string;
   invoiceNumber: string;
-  kvkNumber: string;
-  btwId: string;
-  iban: string;
 }
 
 export const invoiceApi = {
