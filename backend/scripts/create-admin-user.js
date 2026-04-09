@@ -14,7 +14,7 @@ const AppDataSource = new DataSource({
 
 async function createAdminUser() {
   const email = process.env.ADMIN_EMAIL || 'admin@admin.com';
-  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const password = process.env.ADMIN_PASSWORD || '$ocialLead$123!';
 
   try {
     await AppDataSource.initialize();

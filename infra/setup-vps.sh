@@ -9,8 +9,8 @@ set -euo pipefail
 #   ssh root@your-vps 'bash -s' < setup-vps.sh
 # ============================================================
 
-REPO_URL="${REPO_URL:-git@github.com:YOUR_USERNAME/socialContentGenerator.git}"
-INSTALL_DIR="${INSTALL_DIR:-/opt/socialContentGenerator}"
+REPO_URL="${REPO_URL:-git@github.com:SocialLeads/tdmSocials.git}"
+INSTALL_DIR="${INSTALL_DIR:-/opt/tdmSocials}"
 
 log(){ echo -e "\n\033[1;34m==> $*\033[0m"; }
 warn(){ echo -e "\033[1;33m    ⚠  $*\033[0m"; }

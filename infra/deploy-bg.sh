@@ -112,6 +112,9 @@ $COMPOSE up -d redis caddy
 log "Status:"
 $COMPOSE ps
 
+log "Ensuring admin user exists..."
+$COMPOSE exec -T "$NEW_SVC" node scripts/create-admin-user.js || log "Admin user creation failed (non-fatal)"
+
 log "Smoke tests:"
 curl -fsS http://localhost/api/health/live >/dev/null && echo "  /api/health/live  OK" || echo "  /api/health/live  FAIL"
 curl -fsS http://localhost/admin >/dev/null && echo "  /admin            OK" || echo "  /admin            FAIL"
