@@ -12,6 +12,9 @@ export interface GenerateInvoiceData {
   clientName: string;
   clientEmail: string;
   lineItems: InvoiceLineItem[];
+  subtotal: number;
+  btwPercentage: number;
+  btwAmount: number;
   grandTotal: number;
   invoiceDate: string;
   invoiceNumber: string;

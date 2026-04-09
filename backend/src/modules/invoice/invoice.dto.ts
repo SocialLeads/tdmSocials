@@ -44,7 +44,19 @@ export class GenerateInvoiceDto {
   lineItems: InvoiceLineItemDto[];
 
   @IsNumber()
-  @ApiProperty({ example: 200.0 })
+  @ApiProperty({ example: 150.0 })
+  subtotal: number;
+
+  @IsNumber()
+  @ApiProperty({ example: 21 })
+  btwPercentage: number;
+
+  @IsNumber()
+  @ApiProperty({ example: 31.5 })
+  btwAmount: number;
+
+  @IsNumber()
+  @ApiProperty({ example: 181.5 })
   grandTotal: number;
 
   @IsString()

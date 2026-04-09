@@ -9,6 +9,7 @@ const emptyLineItem = (): InvoiceLineItem => ({ description: '', quantity: 0, un
 const InvoiceGeneratorModal: React.FC<Props> = ({ isOpen, onClose, client, onGenerated }) => {
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([]);
   const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [btwPercentage, setBtwPercentage] = useState(21);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -40,12 +41,14 @@ const InvoiceGeneratorModal: React.FC<Props> = ({ isOpen, onClose, client, onGen
 
   const addLineItem = () => { setLineItems([...lineItems, { ...emptyLineItem(), description: 'Leadgeneratie' }]); };
   const removeLineItem = (index: number) => { if (lineItems.length <= 1) return; setLineItems(lineItems.filter((_, i) => i !== index)); };
-  const grandTotal = lineItems.reduce((sum, item) => sum + item.total, 0);
+  const subtotal = lineItems.reduce((sum, item) => sum + item.total, 0);
+  const btwAmount = subtotal * (btwPercentage / 100);
+  const grandTotal = subtotal + btwAmount;
 
   const handleGenerate = async () => {
     setError(''); setLoading(true);
     try {
-      const data: GenerateInvoiceData = { clientId: client.id, clientName: client.name, clientEmail: client.email, lineItems, grandTotal, invoiceDate: new Date().toISOString().split('T')[0], invoiceNumber };
+      const data: GenerateInvoiceData = { clientId: client.id, clientName: client.name, clientEmail: client.email, lineItems, subtotal, btwPercentage, btwAmount, grandTotal, invoiceDate: new Date().toISOString().split('T')[0], invoiceNumber };
       const blob = await invoiceApi.generate(data);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = `${invoiceNumber}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url);
@@ -94,9 +97,23 @@ const InvoiceGeneratorModal: React.FC<Props> = ({ isOpen, onClose, client, onGen
         </div>
 
         <div className="flex justify-end mb-6">
-          <div className="bg-[color:var(--c-primary)] text-white px-6 py-3 rounded-lg text-right">
-            <p className="text-xs opacity-80">Totaal verschuldigd</p>
-            <p className="text-2xl font-bold">€{grandTotal.toFixed(2)}</p>
+          <div className="w-64 space-y-2 text-sm">
+            <div className="flex justify-between text-[color:var(--c-text2)]">
+              <span>Subtotaal</span>
+              <span>€{subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center text-[color:var(--c-text2)]">
+              <div className="flex items-center gap-1">
+                <span>BTW</span>
+                <input type="number" value={btwPercentage} onChange={(e) => setBtwPercentage(Number(e.target.value))} className="w-14 px-1 py-0.5 text-center border border-[color:var(--c-border)] rounded bg-[color:var(--c-bg)] text-[color:var(--c-text)] text-xs" />
+                <span>%</span>
+              </div>
+              <span>€{btwAmount.toFixed(2)}</span>
+            </div>
+            <div className="bg-[color:var(--c-primary)] text-white px-4 py-3 rounded-lg flex justify-between items-center">
+              <span className="text-xs opacity-80">Totaal incl. BTW</span>
+              <span className="text-xl font-bold">€{grandTotal.toFixed(2)}</span>
+            </div>
           </div>
         </div>
 
