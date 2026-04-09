@@ -23,38 +23,41 @@ apiClient.interceptors.request.use((config) => {
 });
 
 // Handle auth errors and token refresh
+let isRefreshing = false;
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
+
+    // Never retry refresh requests themselves
+    if (originalRequest.url === '/auth/refresh') {
+      return Promise.reject(error);
+    }
+
     // If error is 401 and we haven't tried to refresh the token yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshing) {
       originalRequest._retry = true;
-      
+      isRefreshing = true;
+
       try {
-        // Try to refresh the token using the refresh token from HTTP-only cookie
         const response = await apiClient.post('/auth/refresh');
         const newAccessToken = response.data.accessToken;
-        
-        // Update the stored token
+
         localStorage.setItem('authToken', newAccessToken);
-        
-        // Update the authorization header
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        
-        // Retry the original request
+
         return apiClient(originalRequest);
       } catch (refreshError) {
-        console.error('Token refresh error:', refreshError);
-        // If refresh failed, clear tokens and redirect to login
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
-        window.location.href = '/';
+        window.location.href = '/admin/login';
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
