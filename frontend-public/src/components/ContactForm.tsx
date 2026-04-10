@@ -13,7 +13,7 @@ const ContactForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setLoading(true); setResult(null);
     try {
-      const response = await fetch(`${API_BASE}/api/admin/contact`, {
+      const response = await fetch(`${API_BASE}/admin/contact`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message, website }),
       });
