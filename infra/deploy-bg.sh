@@ -94,19 +94,17 @@ $COMPOSE up -d --force-recreate "$NEW_SVC"
 
 wait_backend_healthy "$NEW_SVC"
 
+# Recreate frontends and ensure all services are up (including Caddy)
+log "Recreating frontends..."
+$COMPOSE up -d --force-recreate frontend_admin frontend_public
+$COMPOSE up -d redis caddy
+
 log "Switching Caddy upstream to ${NEW_COLOR}..."
 set_backend_color "$NEW_COLOR"
 reload_caddy
 
 log "Stopping old backend (${OLD_SVC})..."
 $COMPOSE stop "$OLD_SVC" || true
-
-# Frontend images already built — container restart only (seconds)
-log "Recreating frontends (images pre-built)..."
-$COMPOSE up -d --force-recreate frontend_admin frontend_public
-
-# Ensure Redis + Caddy are up
-$COMPOSE up -d redis caddy
 
 log "Status:"
 $COMPOSE ps
