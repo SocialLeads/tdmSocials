@@ -18,7 +18,7 @@ const Hero: React.FC = () => (
         <span className="text-indigo-200">Dagelijks in je inbox</span>
       </h1>
       <p className="text-lg md:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-        Ontvang dagelijks verse, branche-specifieke contentideeën voor TikTok, Instagram, Facebook en Twitter. Open, plaats en groei.
+        Ontvang dagelijks verse, branche-specifieke contentideeën voor TikTok, Instagram, Facebook en X. Open, plaats en groei.
       </p>
       <a href="#contact" className="inline-block bg-white text-primary font-semibold px-8 py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all">
         Nu beginnen

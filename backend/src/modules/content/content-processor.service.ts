@@ -7,7 +7,7 @@ import { MailService } from '../outgoing-communication/mail.service';
 import { ContentIdeas } from '../ai/ai.types';
 import { Industry } from '../clients/client.types';
 
-const PLATFORMS = ['TikTok', 'Instagram', 'Facebook', 'Twitter'];
+const PLATFORMS = ['TikTok', 'Instagram', 'Facebook', 'X'];
 const SEND_DELAY_MS = 100;
 
 function sleep(ms: number): Promise<void> {

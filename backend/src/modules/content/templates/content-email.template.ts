@@ -4,7 +4,7 @@ const platformIcons: Record<string, string> = {
   TikTok: '🎵',
   Instagram: '📸',
   Facebook: '👥',
-  Twitter: '🐦',
+  X: '𝕏',
 };
 
 function renderIdea(idea: PlatformContentIdea): string {
@@ -53,7 +53,7 @@ export function buildContentEmailHtml(
 <body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:24px;">
     <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:12px 12px 0 0;padding:32px 24px;text-align:center;">
-      <h1 style="margin:0;font-size:24px;color:#ffffff;">TDM Socials - Dagelijkse Contentideeën</h1>
+      <h1 style="margin:0;font-size:24px;color:#111827;">TDM Socials - Dagelijkse Contentideeën</h1>
       <p style="margin:8px 0 0;font-size:14px;color:#e0e7ff;">${today}</p>
     </div>
 

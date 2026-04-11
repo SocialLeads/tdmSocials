@@ -17,7 +17,7 @@ const platforms = [
   { name: 'TikTok', Icon: TikTokIcon, iconColor: 'text-black', bg: 'bg-gray-50 border-gray-200 hover:bg-gray-100' },
   { name: 'Instagram', Icon: InstagramIcon, iconColor: 'text-pink-600', bg: 'bg-pink-50 border-pink-200 hover:bg-pink-100' },
   { name: 'Facebook', Icon: FacebookIcon, iconColor: 'text-blue-600', bg: 'bg-blue-50 border-blue-200 hover:bg-blue-100' },
-  { name: 'Twitter / X', Icon: XIcon, iconColor: 'text-black', bg: 'bg-gray-50 border-gray-200 hover:bg-gray-100' },
+  { name: 'X', Icon: XIcon, iconColor: 'text-black', bg: 'bg-gray-50 border-gray-200 hover:bg-gray-100' },
 ];
 
 const Platforms: React.FC = () => (
