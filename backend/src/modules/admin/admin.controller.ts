@@ -96,8 +96,8 @@ export class AdminController {
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Manually trigger the daily content email cron' })
-  async triggerDailyCron() {
-    const result = await this.contentProcessor.processDaily();
+  async triggerDailyCron(@Body() body?: { clientIds?: string[] }) {
+    const result = await this.contentProcessor.processDaily(body?.clientIds);
     return result;
   }
 }

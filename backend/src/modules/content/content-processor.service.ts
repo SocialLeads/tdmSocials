@@ -46,7 +46,7 @@ export class ContentProcessorService {
     this.logger.log(`Image provider configured: ${this.imageProvider}, daily limit: ${this.dailyImageLimit}`);
   }
 
-  async processDaily(): Promise<{ sent: number; failed: number }> {
+  async processDaily(clientIds?: string[]): Promise<{ sent: number; failed: number }> {
     if (this.isRunning) {
       this.logger.warn('Daily processing already in progress, skipping.');
       throw new Error('Content processing is already running. Please wait for it to finish.');
@@ -54,10 +54,17 @@ export class ContentProcessorService {
 
     this.isRunning = true;
     try {
-    this.logger.log('Starting daily content processing...');
+    const selectedIds = clientIds?.length ? clientIds : null;
+    this.logger.log(`Starting daily content processing — ${selectedIds ? `${selectedIds.length} specific client(s): [${selectedIds.join(', ')}]` : 'ALL clients'}`);
     const startTime = Date.now();
 
-    const clients = await this.clientsService.findAll();
+    const allClients = await this.clientsService.findAll();
+    const clients = selectedIds
+      ? allClients.filter((c) => selectedIds.includes(c.id))
+      : allClients;
+
+    this.logger.log(`Filtered: ${clients.length} client(s) from ${allClients.length} total`);
+
     if (clients.length === 0) {
       this.logger.log('No clients found, skipping.');
       await this.sendAdminReport(0, 0, [], [], 0, 0, 0, startTime);
