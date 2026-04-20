@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { ContentProcessorService } from '../content/content-processor.service';
 import { MailService } from '../outgoing-communication/mail.service';
+import { ImageStorageService } from '../ai/image-storage.service';
 
 @Injectable()
 export class SchedulerService {
@@ -12,7 +13,20 @@ export class SchedulerService {
     private readonly contentProcessor: ContentProcessorService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
+    private readonly imageStorageService: ImageStorageService,
   ) {}
+
+  // Clean up old generated images (daily at 1 AM)
+  @Cron('0 1 * * *')
+  async handleImageCleanup() {
+    this.logger.log('Image cleanup cron triggered');
+    try {
+      const deleted = await this.imageStorageService.cleanupOlderThan();
+      this.logger.log(`Image cleanup complete: ${deleted} files deleted`);
+    } catch (error) {
+      this.logger.error('Image cleanup failed', error);
+    }
+  }
 
   // Default: 8 AM daily. Override via CRON_SCHEDULE env var if using dynamic scheduling.
   @Cron('0 8 * * *')

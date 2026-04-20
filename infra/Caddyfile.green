@@ -1,4 +1,9 @@
 tdmsocials.nl, www.tdmsocials.nl {
+  handle_path /generated/* {
+    root * /srv/generated
+    file_server
+  }
+
   handle_path /api/* {
     reverse_proxy backend_green:4000
   }

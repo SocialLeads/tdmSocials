@@ -126,6 +126,13 @@ export const getConfig = () => {
         whatsappToken: process.env.WHATSAPP_TOKEN || '',
         whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
         aiServiceUrl: process.env.AI_SERVICE_URL || 'http://localhost:8001',
+
+        // Image generation
+        dalleModel: process.env.DALL_E_MODEL || 'dall-e-3',
+        dalleQuality: process.env.DALL_E_QUALITY || 'standard',
+        imageStoragePath: process.env.IMAGE_STORAGE_PATH || '/app/public/generated',
+        publicImageBaseUrl: process.env.PUBLIC_IMAGE_BASE_URL || '',
+        imageRetentionDays: process.env.IMAGE_RETENTION_DAYS || '365',
     };
 
     return configObject;

@@ -30,8 +30,8 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Never retry refresh requests themselves
-    if (originalRequest.url === '/auth/refresh') {
+    // Never retry auth endpoints
+    if (originalRequest.url?.startsWith('/auth/')) {
       return Promise.reject(error);
     }
 

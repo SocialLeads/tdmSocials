@@ -57,6 +57,13 @@ export const getConfig = () => ({
 
     // Cron schedule (default: 8 AM daily)
     cronSchedule: process.env.CRON_SCHEDULE || '0 8 * * *',
+
+    // Image generation
+    dalleModel: process.env.DALL_E_MODEL || 'dall-e-3',
+    dalleQuality: process.env.DALL_E_QUALITY || 'standard',
+    imageStoragePath: process.env.IMAGE_STORAGE_PATH || '/app/public/generated',
+    publicImageBaseUrl: process.env.PUBLIC_IMAGE_BASE_URL || '',
+    imageRetentionDays: process.env.IMAGE_RETENTION_DAYS || '365',
 });
 
 export default registerAs('app', getConfig);

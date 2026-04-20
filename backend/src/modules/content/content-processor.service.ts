@@ -2,9 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsService } from '../clients/clients.service';
 import { AiService } from '../ai/ai.service';
+import { FluxService } from '../ai/flux.service';
+import { ImageStorageService } from '../ai/image-storage.service';
 import { ContentComposerService } from './content-composer.service';
 import { MailService } from '../outgoing-communication/mail.service';
-import { ContentIdeas } from '../ai/ai.types';
+import { IndustryContent, PlatformContent, PlatformContentRaw } from '../ai/ai.types';
 import { Industry } from '../clients/client.types';
 
 const PLATFORMS = ['TikTok', 'Instagram', 'Facebook', 'X'];
@@ -24,35 +26,73 @@ interface ClientError {
 export class ContentProcessorService {
   private readonly logger = new Logger(ContentProcessorService.name);
 
+  private readonly imageProvider: string;
+  private readonly dailyImageLimit: number;
+  private isRunning = false;
+  private imageCounterDate = '';
+  private imageCounterValue = 0;
+
   constructor(
     private readonly clientsService: ClientsService,
     private readonly aiService: AiService,
+    private readonly fluxService: FluxService,
+    private readonly imageStorageService: ImageStorageService,
     private readonly composerService: ContentComposerService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.imageProvider = this.configService.get<string>('IMAGE_PROVIDER', 'flux');
+    this.dailyImageLimit = parseInt(this.configService.get<string>('DAILY_IMAGE_LIMIT', '200'), 10);
+    this.logger.log(`Image provider configured: ${this.imageProvider}, daily limit: ${this.dailyImageLimit}`);
+  }
 
   async processDaily(): Promise<{ sent: number; failed: number }> {
+    if (this.isRunning) {
+      this.logger.warn('Daily processing already in progress, skipping.');
+      throw new Error('Content processing is already running. Please wait for it to finish.');
+    }
+
+    this.isRunning = true;
+    try {
     this.logger.log('Starting daily content processing...');
     const startTime = Date.now();
 
     const clients = await this.clientsService.findAll();
     if (clients.length === 0) {
       this.logger.log('No clients found, skipping.');
-      await this.sendAdminReport(0, 0, [], [], 0, startTime);
+      await this.sendAdminReport(0, 0, [], [], 0, 0, 0, startTime);
       return { sent: 0, failed: 0 };
     }
 
-    // Get unique industries and generate content for each
+    // Get unique industries and generate content + images for each
     const industriesInUse = [...new Set(clients.map((c) => c.industry))];
-    const contentByIndustry = new Map<Industry, ContentIdeas>();
+    const contentByIndustry = new Map<Industry, IndustryContent>();
     const failedIndustries: string[] = [];
+    let imagesGenerated = 0;
+    let imagesFailed = 0;
 
     for (const industry of industriesInUse) {
       try {
-        const ideas = await this.aiService.generateContentIdeas(industry, PLATFORMS);
-        contentByIndustry.set(industry, ideas);
+        // Generate text content
+        const rawContent = await this.aiService.generateReadyContent(industry, PLATFORMS);
         this.logger.log(`Generated content for industry: ${industry}`);
+
+        // Generate images for each platform
+        const contentWithImages: PlatformContent[] = [];
+        for (const item of rawContent.content) {
+          const platformContent = await this.generateImageForContent(item, industry);
+          contentWithImages.push(platformContent);
+          if (platformContent.imageUrl) {
+            imagesGenerated++;
+          } else {
+            imagesFailed++;
+          }
+        }
+
+        contentByIndustry.set(industry, {
+          industry,
+          content: contentWithImages,
+        });
       } catch (error) {
         failedIndustries.push(industry);
         this.logger.error(`Failed to generate content for ${industry}`, error);
@@ -66,8 +106,8 @@ export class ContentProcessorService {
     const clientErrors: ClientError[] = [];
 
     for (const client of clients) {
-      const ideas = contentByIndustry.get(client.industry);
-      if (!ideas) {
+      const industryContent = contentByIndustry.get(client.industry);
+      if (!industryContent) {
         failed++;
         clientErrors.push({
           email: client.email,
@@ -78,11 +118,11 @@ export class ContentProcessorService {
       }
 
       try {
-        const html = this.composerService.composeEmail(client.name, client.industry, ideas);
+        const html = this.composerService.composeEmail(client.name, client.industry, industryContent);
 
         await this.mailService.sendMail({
           to: client.email,
-          subject: `Your Daily Content Ideas - ${client.industry}`,
+          subject: `Dagelijkse Content — ${client.industry}`,
           html,
         });
 
@@ -107,12 +147,70 @@ export class ContentProcessorService {
       await this.clientsService.incrementEmailCounters(successfulClientIds);
     }
 
-    this.logger.log(`Daily processing complete: ${sent} sent, ${failed} failed`);
+    this.logger.log(`Daily processing complete: ${sent} sent, ${failed} failed, ${imagesGenerated} images generated, ${imagesFailed} images failed`);
 
     // Send admin summary report
-    await this.sendAdminReport(sent, failed, clientErrors, failedIndustries, industriesInUse.length, startTime);
+    await this.sendAdminReport(sent, failed, clientErrors, failedIndustries, industriesInUse.length, imagesGenerated, imagesFailed, startTime);
 
     return { sent, failed };
+    } finally {
+      this.isRunning = false;
+    }
+  }
+
+  private async generateImageForContent(
+    item: PlatformContentRaw,
+    industry: string,
+  ): Promise<PlatformContent> {
+    let imageUrl: string | null = null;
+
+    if (item.imagePrompt) {
+      if (this.isDailyLimitReached()) {
+        this.logger.error(`DAILY IMAGE LIMIT REACHED (${this.dailyImageLimit}). Skipping image for ${item.platform}/${industry}.`);
+        return { platform: item.platform, postText: item.postText, hashtags: item.hashtags, callToAction: item.callToAction, imageUrl: null };
+      }
+
+      try {
+        this.logger.log(`Generating image for ${item.platform}/${industry} using provider: ${this.imageProvider} [${this.imageCounterValue}/${this.dailyImageLimit} today]`);
+
+        const maxAttempts = 3;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          this.logger.log(`Image attempt ${attempt}/${maxAttempts} for ${item.platform}/${industry}`);
+
+          const filename = this.imageStorageService.generateFilename(industry, item.platform);
+          let savedUrl = '';
+
+          this.incrementImageCounter();
+
+          const tempUrl = this.imageProvider === 'dalle'
+            ? await this.aiService.generateImage(item.imagePrompt)
+            : await this.fluxService.generateImage(item.imagePrompt);
+          if (tempUrl) {
+            savedUrl = await this.imageStorageService.saveImageFromUrl(tempUrl, filename);
+          }
+
+          if (savedUrl) {
+            imageUrl = savedUrl;
+            this.logger.log(`Image saved on attempt ${attempt}: ${filename}`);
+            break;
+          }
+
+          this.logger.warn(`Image blank/filtered on attempt ${attempt}, ${attempt < maxAttempts ? 'retrying...' : 'giving up'}`);
+        }
+      } catch (error: any) {
+        this.logger.error(`Image generation failed for ${item.platform}/${industry}: ${error?.message || error}`);
+      }
+    } else {
+      this.logger.warn(`No imagePrompt for ${item.platform}/${industry}`);
+    }
+
+    return {
+      platform: item.platform,
+      postText: item.postText,
+      hashtags: item.hashtags,
+      callToAction: item.callToAction,
+      imageUrl,
+    };
   }
 
   private async sendAdminReport(
@@ -121,6 +219,8 @@ export class ContentProcessorService {
     clientErrors: ClientError[],
     failedIndustries: string[],
     totalIndustries: number,
+    imagesGenerated: number,
+    imagesFailed: number,
     startTime: number,
   ): Promise<void> {
     const adminEmail = this.configService.get<string>('app.adminContactEmail');
@@ -185,6 +285,10 @@ export class ContentProcessorService {
             <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">Branches verwerkt</td>
             <td style="padding:10px 16px;border:1px solid #e5e7eb;">${totalIndustries} (${failedIndustries.length} mislukt)</td>
           </tr>
+          <tr>
+            <td style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;">Afbeeldingen gegenereerd</td>
+            <td style="padding:10px 16px;border:1px solid #e5e7eb;">${imagesGenerated} ${imagesFailed > 0 ? `<span style="color:#dc2626;">(${imagesFailed} mislukt)</span>` : ''}</td>
+          </tr>
         </table>
 
         ${errorsHtml}
@@ -205,5 +309,23 @@ export class ContentProcessorService {
     } catch (error) {
       this.logger.error('Failed to send admin report email', error);
     }
+  }
+
+  private isDailyLimitReached(): boolean {
+    const today = new Date().toISOString().split('T')[0];
+    if (this.imageCounterDate !== today) {
+      this.imageCounterDate = today;
+      this.imageCounterValue = 0;
+    }
+    return this.imageCounterValue >= this.dailyImageLimit;
+  }
+
+  private incrementImageCounter(): void {
+    const today = new Date().toISOString().split('T')[0];
+    if (this.imageCounterDate !== today) {
+      this.imageCounterDate = today;
+      this.imageCounterValue = 0;
+    }
+    this.imageCounterValue++;
   }
 }

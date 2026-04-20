@@ -1,4 +1,4 @@
-import { PlatformContentIdea } from '../../ai/ai.types';
+import { PlatformContent } from '../../ai/ai.types';
 
 const platformIcons: Record<string, string> = {
   TikTok: '🎵',
@@ -7,24 +7,28 @@ const platformIcons: Record<string, string> = {
   X: '𝕏',
 };
 
-function renderIdea(idea: PlatformContentIdea): string {
-  const icon = platformIcons[idea.platform] || '📱';
-  const hashtags = idea.hashtags.map((h) => `#${h}`).join(' ');
+function renderContent(item: PlatformContent): string {
+  const icon = platformIcons[item.platform] || '📱';
+  const hashtags = item.hashtags.map((h) => `#${h}`).join(' ');
+
+  const imageBlock = item.imageUrl
+    ? `<img src="${item.imageUrl}" alt="${item.platform}" width="100%" style="display:block;border-radius:8px;margin-bottom:12px;" />`
+    : '';
 
   return `
-    <div style="background:#f9fafb;border-radius:8px;padding:20px;margin-bottom:16px;">
-      <h2 style="margin:0 0 8px;font-size:18px;color:#111827;">
-        ${icon} ${idea.platform}
+    <div style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:20px;">
+      <h2 style="margin:0 0 12px;font-size:18px;color:#111827;">
+        ${icon} ${item.platform}
       </h2>
-      <h3 style="margin:0 0 8px;font-size:16px;color:#1f2937;">${idea.title}</h3>
-      <p style="margin:0 0 12px;font-size:14px;color:#4b5563;line-height:1.5;">
-        ${idea.description}
-      </p>
+      ${imageBlock}
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:12px;">
+        <p style="margin:0;font-size:14px;color:#1f2937;line-height:1.6;white-space:pre-wrap;">${item.postText}</p>
+      </div>
       <p style="margin:0 0 8px;font-size:13px;color:#6366f1;font-weight:500;">
         ${hashtags}
       </p>
       <p style="margin:0;font-size:13px;color:#059669;font-style:italic;">
-        ${idea.callToAction}
+        💡 ${item.callToAction}
       </p>
     </div>`;
 }
@@ -32,7 +36,7 @@ function renderIdea(idea: PlatformContentIdea): string {
 export function buildContentEmailHtml(
   clientName: string,
   industry: string,
-  ideas: PlatformContentIdea[],
+  content: PlatformContent[],
 ): string {
   const today = new Date().toLocaleDateString('nl-NL', {
     weekday: 'long',
@@ -41,19 +45,19 @@ export function buildContentEmailHtml(
     day: 'numeric',
   });
 
-  const ideasHtml = ideas.map(renderIdea).join('');
+  const contentHtml = content.map(renderContent).join('');
 
   return `<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jouw dagelijkse contentideeën</title>
+  <title>Dagelijkse content</title>
 </head>
 <body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:24px;">
     <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:12px 12px 0 0;padding:32px 24px;text-align:center;">
-      <h1 style="margin:0;font-size:24px;color:#111827;">TDM Socials - Dagelijkse Contentideeën</h1>
+      <h1 style="margin:0;font-size:24px;color:#111827;">TDM Socials — Dagelijkse Content</h1>
       <p style="margin:8px 0 0;font-size:14px;color:#e0e7ff;">${today}</p>
     </div>
 
@@ -62,14 +66,16 @@ export function buildContentEmailHtml(
         Hoi <strong>${clientName}</strong>,
       </p>
       <p style="margin:0 0 24px;font-size:14px;color:#6b7280;">
-        Hier zijn de contentideeën van vandaag voor de <strong>${industry}</strong>-branche. Elk idee is afgestemd op een specifiek platform voor maximale betrokkenheid.
+        Hier is je klaar-om-te-posten content voor vandaag, op maat gemaakt voor de <strong>${industry}</strong>-branche. Kopieer de tekst, download de afbeelding en plaats het direct!
       </p>
 
-      ${ideasHtml}
+      ${contentHtml}
 
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
       <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;">
-        Je ontvangt dit bericht omdat je bent aangemeld voor dagelijkse contentideeën van TDM Socials. | info@tdmsocials.nl
+        Je ontvangt dit bericht omdat je bent aangemeld voor dagelijkse content van TDM Socials.<br/>
+        Afbeeldingen zijn beschikbaar tot 1 jaar na verzending.<br/>
+        info@tdmsocials.nl
       </p>
     </div>
   </div>

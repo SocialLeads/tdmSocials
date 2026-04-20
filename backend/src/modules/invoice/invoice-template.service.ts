@@ -43,8 +43,8 @@ export class InvoiceTemplateService {
     <div style="text-align:right;margin-bottom:40px;line-height:1.6;">
       <p style="font-size:18px;font-weight:700;color:#111827;">TDM AUTO &amp; SOCIAL SOLUTIONS</p>
       <p style="font-size:13px;color:#6b7280;">
-        Eduard meijerslaan 17<br/>
-        5042 ML Tilburg
+        Heuvelstraat 27B<br/>
+        4812 PG Breda
       </p>
       <p style="font-size:13px;color:#6b7280;margin-top:8px;">
         Info@tdmsocials.com<br/>

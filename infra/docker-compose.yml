@@ -9,6 +9,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+      - generated_images:/srv/generated:ro
     depends_on:
       - frontend_admin
       - frontend_public
@@ -47,6 +48,8 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+      - generated_images:/app/public/generated
     expose:
       - "4000"
 
@@ -60,6 +63,8 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+      - generated_images:/app/public/generated
     expose:
       - "4000"
 
@@ -88,3 +93,4 @@ volumes:
   caddy_config:
   pg_data:
   redis_data:
+  generated_images:

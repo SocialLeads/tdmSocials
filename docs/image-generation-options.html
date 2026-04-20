@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Image Generation — Opties & Kosten</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1f2937; line-height: 1.6; padding: 48px 40px; max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 28px; color: #4f46e5; margin-bottom: 8px; }
+    h2 { font-size: 20px; color: #111827; margin: 36px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+    h3 { font-size: 16px; color: #374151; margin: 20px 0 8px; }
+    p { margin-bottom: 12px; font-size: 14px; }
+    .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 32px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 13px; }
+    th { background: #f3f4f6; text-align: left; padding: 10px 14px; font-weight: 600; color: #374151; border: 1px solid #e5e7eb; }
+    td { padding: 10px 14px; border: 1px solid #e5e7eb; color: #4b5563; }
+    .highlight { background: #f0fdf4; }
+    .highlight td { color: #16a34a; font-weight: 600; }
+    .badge { display: inline-block; background: #4f46e5; color: white; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; vertical-align: middle; }
+    .badge-green { background: #16a34a; }
+    .badge-amber { background: #d97706; }
+    .badge-red { background: #dc2626; }
+    .callout { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 14px; }
+    .callout-green { background: #f0fdf4; border-left-color: #16a34a; }
+    .section { margin-bottom: 32px; }
+    .pros { color: #16a34a; }
+    .cons { color: #dc2626; }
+    ul { margin: 8px 0 16px 20px; font-size: 14px; }
+    li { margin-bottom: 6px; }
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center; }
+    @media print {
+      body { padding: 24px; }
+      .page-break { page-break-before: always; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>AI Beeldgeneratie — Opties & Kosten</h1>
+  <p class="subtitle">TDM Auto & Social Solutions — Rapport voor klant</p>
+
+  <h2>Hoe het werkt</h2>
+  <div class="section">
+    <p>Bij elke dagelijkse e-mail worden <strong>4 unieke afbeeldingen</strong> gegenereerd (voor TikTok, Instagram, Facebook en X). De afbeeldingen worden automatisch gemaakt op basis van de branche en de content van die dag.</p>
+
+    <div class="callout-green callout">
+      <strong>Efficiënt met kosten:</strong>
+      <ul style="margin-bottom:0;">
+        <li>Afbeeldingen worden <strong>alleen gegenereerd voor branches die actieve klanten hebben</strong>. Geen klanten in een branche = geen kosten voor die branche.</li>
+        <li>De 4 afbeeldingen per branche worden <strong>hergebruikt voor alle klanten binnen dezelfde branche</strong>. Of je nu 1 of 50 klanten in "Restaurant" hebt — er worden slechts 4 afbeeldingen gegenereerd, niet 4 per klant.</li>
+        <li>Dit betekent dat de kosten schalen met het <strong>aantal unieke branches</strong>, niet met het aantal klanten.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Optie 1: Flux Pro 1.1 (fal.ai) <span class="badge badge-green">Aanbevolen</span></h2>
+  <div class="section">
+    <h3 class="pros">Sterke punten</h3>
+    <ul>
+      <li>Zeer fotorealistische afbeeldingen — mensen zien er natuurlijk uit</li>
+      <li>Goede huidtextuur, verlichting en proporties</li>
+      <li>Zelden ongewenste tekst in de afbeelding</li>
+      <li>Snelle generatie (~5-10 seconden per afbeelding)</li>
+    </ul>
+
+    <h3>Kwaliteitsopties & kosten</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Resolutie</th>
+          <th>Prijs per afbeelding</th>
+          <th>Per dag (4 afb.)</th>
+          <th>Per maand (30 dagen)</th>
+          <th>Geschikt voor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight">
+          <td>1024×1024 <span class="badge badge-green">Aanbevolen</span></td>
+          <td>~€0,04</td>
+          <td>~€0,16</td>
+          <td>~€4,80</td>
+          <td>Social media posts</td>
+        </tr>
+        <tr>
+          <td>1536×1536</td>
+          <td>~€0,08</td>
+          <td>~€0,32</td>
+          <td>~€9,60</td>
+          <td>Hogere kwaliteit gewenst</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:#6b7280;"><em>* Bovenstaande kosten zijn per branche. De hogere resolutie levert meer pixels op, maar geen betere beeldkwaliteit — dezelfde stijl, alleen groter. Social media platforms comprimeren afbeeldingen sowieso, waardoor 1024×1024 ruim voldoende is.</em></p>
+  </div>
+
+  <h2>Optie 2: DALL-E 3 (OpenAI)</h2>
+  <div class="section">
+    <h3 class="pros">Sterke punten</h3>
+    <ul>
+      <li>Zelfde aanbieder als tekstgeneratie (eenvoudig beheer)</li>
+      <li>Goede kwaliteit voor objecten, producten, eten en interieurs</li>
+    </ul>
+
+    <h3 class="cons">Beperkingen</h3>
+    <ul>
+      <li>Mensen zien er vaak onnatuurlijk of geanimeerd uit</li>
+      <li>Voegt regelmatig onleesbare/foutieve tekst toe aan afbeeldingen</li>
+      <li>Gezichten kunnen vervormd zijn</li>
+    </ul>
+
+    <h3>Kosten</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Resolutie</th>
+          <th>Prijs per afbeelding</th>
+          <th>Per dag (4 afb.)</th>
+          <th>Per maand (30 dagen)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1024×1024 (standaard)</td>
+          <td>~€0,04</td>
+          <td>~€0,16</td>
+          <td>~€4,80</td>
+        </tr>
+        <tr>
+          <td>1024×1024 (HD)</td>
+          <td>~€0,08</td>
+          <td>~€0,32</td>
+          <td>~€9,60</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:#dc2626;"><em>* Let op: de HD-modus verbetert alleen de scherpte, niet de fundamentele kwaliteit. Problemen met onnatuurlijke mensen, vervormde gezichten en ongewenste tekst in afbeeldingen blijven aanwezig in zowel standaard als HD.</em></p>
+  </div>
+
+  <h2>Directe vergelijking</h2>
+  <div class="section">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Flux Pro 1.1 (fal.ai) <span class="badge badge-green">Aanbevolen</span></th>
+          <th>DALL-E 3 (OpenAI)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Fotorealisme (mensen)</strong></td>
+          <td><span class="badge badge-green">Uitstekend</span></td>
+          <td><span class="badge badge-amber">Matig</span></td>
+        </tr>
+        <tr>
+          <td><strong>Objecten / producten</strong></td>
+          <td><span class="badge badge-green">Uitstekend</span></td>
+          <td><span class="badge badge-green">Goed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Ongewenste tekst in beeld</strong></td>
+          <td><span class="badge badge-green">Zelden</span></td>
+          <td><span class="badge badge-red">Vaak</span></td>
+        </tr>
+        <tr>
+          <td><strong>Gezichtskwaliteit</strong></td>
+          <td><span class="badge badge-green">Natuurlijk</span></td>
+          <td><span class="badge badge-amber">Soms vervormd</span></td>
+        </tr>
+        <tr>
+          <td><strong>Prijs (standaard)</strong></td>
+          <td>~€0,04 / afbeelding</td>
+          <td>~€0,04 / afbeelding</td>
+        </tr>
+        <tr>
+          <td><strong>Snelheid</strong></td>
+          <td>~5-10 seconden</td>
+          <td>~10-20 seconden</td>
+        </tr>
+        <tr>
+          <td><strong>Account / beheer</strong></td>
+          <td><span class="badge badge-amber">Apart account nodig (fal.ai)</span></td>
+          <td><span class="badge badge-green">Zelfde OpenAI-account</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>Belangrijk verschil: accounts & facturatie</strong>
+      <p style="margin-top:8px;margin-bottom:0;">De kosten per afbeelding zijn gelijk. Het verschil zit in de kwaliteit en het beheer:</p>
+      <ul style="margin-bottom:0;">
+        <li><strong>DALL-E 3</strong> draait op hetzelfde OpenAI-account dat al wordt gebruikt voor de tekstgeneratie. Geen extra account nodig — alle kosten verschijnen op één factuur.</li>
+        <li><strong>Flux Pro 1.1</strong> vereist een <strong>apart account bij fal.ai</strong> met een eigen API-sleutel en facturatie. Dit wordt door ons opgezet en beheerd, maar het is een extra dienst om in de gaten te houden naast OpenAI. De beeldkwaliteit is echter aanzienlijk beter, met name voor afbeeldingen met mensen.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Kostenscenario's per maand</h2>
+  <div class="section">
+    <p>Kosten zijn afhankelijk van het aantal <strong>unieke branches met actieve klanten</strong>, niet het totale aantal klanten.</p>
+    <p>Beide aanbieders kosten hetzelfde in standaard resolutie. Het verschil zit puur in de <strong>beeldkwaliteit</strong>, niet in de prijs.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Actieve branches</th>
+          <th>Afbeeldingen per dag</th>
+          <th>Kosten per dag</th>
+          <th>Kosten per maand</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1 branche</strong></td>
+          <td>4</td>
+          <td>~€0,16</td>
+          <td>~€5</td>
+        </tr>
+        <tr>
+          <td><strong>5 branches</strong></td>
+          <td>20</td>
+          <td>~€0,80</td>
+          <td>~€24</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>10 branches</strong></td>
+          <td>40</td>
+          <td>~€1,60</td>
+          <td>~€48</td>
+        </tr>
+        <tr>
+          <td><strong>20 branches</strong></td>
+          <td>80</td>
+          <td>~€3,20</td>
+          <td>~€96</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Totale maandelijkse kosten (schatting)</h2>
+  <div class="section">
+    <div class="callout">
+      <p><strong>Voorbeeld: 10 actieve branches, Flux standaard resolutie</strong></p>
+      <table style="margin-top:12px;margin-bottom:0;">
+        <tr><td style="width:60%">Afbeeldingen (Flux 1024×1024)</td><td><strong>~€48</strong></td></tr>
+        <tr><td>Tekstgeneratie (OpenAI GPT-4o-mini)</td><td><strong>~€6</strong></td></tr>
+        <tr style="background:#e0e7ff;"><td><strong>Totaal per maand</strong></td><td><strong>~€54</strong></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h2>Aanbeveling</h2>
+  <div class="section">
+    <p><strong>Flux Pro 1.1 in standaard resolutie (1024×1024)</strong> biedt de beste balans tussen kwaliteit en kosten:</p>
+    <ul>
+      <li>Fotorealistische afbeeldingen zonder ongewenste tekst</li>
+      <li>Laagste kosten bij gelijke kwaliteit</li>
+      <li>1024×1024 is ruim voldoende voor alle social media platforms</li>
+      <li>Hogere resolutie is beschikbaar als upgrade-optie</li>
+    </ul>
+    <p>Beide opties zijn volledig geconfigureerd in het systeem en kunnen op elk moment gewisseld worden zonder downtime of aanpassingen.</p>
+  </div>
+
+  <div class="footer">
+    TDM Auto & Social Solutions — info@tdmsocials.com — tdmsocials.nl
+  </div>
+
+</body>
+</html>
