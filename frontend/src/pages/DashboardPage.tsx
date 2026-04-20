@@ -3,7 +3,7 @@ import { clientsApi, Client } from '../api/clients.api';
 import AddClientModal from '../components/AddClientModal';
 import EditClientModal from '../components/EditClientModal';
 import InvoiceGeneratorModal from '../components/InvoiceGeneratorModal';
-import ConfirmModal from '../components/ConfirmModal';
+import SendEmailsModal from '../components/SendEmailsModal';
 
 const DashboardPage: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -14,7 +14,7 @@ const DashboardPage: React.FC = () => {
   const [invoiceClient, setInvoiceClient] = useState<Client | null>(null);
   const [triggeringCron, setTriggeringCron] = useState(false);
   const [cronResult, setCronResult] = useState<string | null>(null);
-  const [showCronConfirm, setShowCronConfirm] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
 
   const fetchClients = useCallback(async () => {
     try {
@@ -41,16 +41,16 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleTriggerCron = async () => {
-    setShowCronConfirm(false);
+  const handleTriggerCron = async (clientIds?: string[]) => {
+    setShowSendModal(false);
     setTriggeringCron(true);
     setCronResult(null);
     try {
-      const result = await clientsApi.triggerDailyCron();
+      const result = await clientsApi.triggerDailyCron(clientIds);
       setCronResult(`Verzonden: ${result.sent}, Mislukt: ${result.failed}`);
       fetchClients();
-    } catch (error) {
-      setCronResult('Dagelijkse e-mails versturen mislukt');
+    } catch (error: any) {
+      setCronResult(error?.response?.data?.message || 'Dagelijkse e-mails versturen mislukt');
     } finally {
       setTriggeringCron(false);
     }
@@ -74,7 +74,7 @@ const DashboardPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-[color:var(--c-text)]">Klanten</h1>
         <div className="flex gap-3">
           <button
-            onClick={() => setShowCronConfirm(true)}
+            onClick={() => setShowSendModal(true)}
             disabled={triggeringCron}
             className="px-4 py-2 text-sm font-medium border border-[color:var(--c-border)] text-[color:var(--c-text)] rounded-lg hover:bg-[color:var(--c-bg2,#f3f4f6)] disabled:opacity-50"
           >
@@ -187,18 +187,12 @@ const DashboardPage: React.FC = () => {
         onGenerated={fetchClients}
       />
 
-      <ConfirmModal
-        isOpen={showCronConfirm}
-        onClose={() => setShowCronConfirm(false)}
+      <SendEmailsModal
+        isOpen={showSendModal}
+        onClose={() => setShowSendModal(false)}
         onConfirm={handleTriggerCron}
-        title="E-mails handmatig versturen"
-        message="Dit verstuurt direct e-mails naar alle actieve klanten. Gebruik dit alleen voor:"
-        bullets={[
-          'Testen in een ontwikkelomgeving',
-          'Handmatig opnieuw versturen als de dagelijkse cron is mislukt',
-        ]}
-        confirmLabel="Ja, versturen"
-        confirmVariant="danger"
+        clients={clients}
+        loading={triggeringCron}
       />
     </div>
   );

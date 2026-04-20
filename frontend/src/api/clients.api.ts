@@ -38,8 +38,8 @@ export const clientsApi = {
     await apiClient.delete(`/clients/${id}`);
   },
 
-  triggerDailyCron: async (): Promise<{ sent: number; failed: number }> => {
-    const response = await apiClient.post('/admin/trigger-daily-cron');
+  triggerDailyCron: async (clientIds?: string[]): Promise<{ sent: number; failed: number }> => {
+    const response = await apiClient.post('/admin/trigger-daily-cron', clientIds?.length ? { clientIds } : {});
     return response.data;
   },
 };
