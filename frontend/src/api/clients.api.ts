@@ -42,4 +42,9 @@ export const clientsApi = {
     const response = await apiClient.post('/admin/trigger-daily-cron', clientIds?.length ? { clientIds } : {});
     return response.data;
   },
+
+  checkCredits: async (): Promise<{ balances: { service: string; balance: number; currency: string }[] }> => {
+    const response = await apiClient.post('/admin/check-credits');
+    return response.data;
+  },
 };

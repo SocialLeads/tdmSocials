@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { ContentProcessorService } from '../content/content-processor.service';
 import { MailService } from '../outgoing-communication/mail.service';
 import { ImageStorageService } from '../ai/image-storage.service';
+import { CreditMonitorService } from '../ai/credit-monitor.service';
 
 @Injectable()
 export class SchedulerService {
@@ -14,7 +15,19 @@ export class SchedulerService {
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
     private readonly imageStorageService: ImageStorageService,
+    private readonly creditMonitorService: CreditMonitorService,
   ) {}
+
+  // Check AI service credit balances (daily at 7 AM — before content cron at 8 AM)
+  @Cron('0 7 * * *')
+  async handleCreditCheck() {
+    this.logger.log('Credit balance check triggered');
+    try {
+      await this.creditMonitorService.checkAndAlert();
+    } catch (error) {
+      this.logger.error('Credit balance check failed', error);
+    }
+  }
 
   // Clean up old generated images (daily at 1 AM)
   @Cron('0 1 * * *')

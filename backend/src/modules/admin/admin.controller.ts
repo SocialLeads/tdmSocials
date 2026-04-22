@@ -6,6 +6,7 @@ import { Roles, Public } from '../auth/guards/auth.decorators';
 import { ClientsService } from '../clients/clients.service';
 import { MailService } from '../outgoing-communication/mail.service';
 import { ContentProcessorService } from '../content/content-processor.service';
+import { CreditMonitorService } from '../ai/credit-monitor.service';
 import { IsString, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
@@ -49,6 +50,7 @@ export class AdminController {
     private readonly clientsService: ClientsService,
     private readonly mailService: MailService,
     private readonly contentProcessor: ContentProcessorService,
+    private readonly creditMonitorService: CreditMonitorService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -99,5 +101,15 @@ export class AdminController {
   async triggerDailyCron(@Body() body?: { clientIds?: string[] }) {
     const result = await this.contentProcessor.processDaily(body?.clientIds);
     return result;
+  }
+
+  @Post('check-credits')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Check AI service credit balances and alert if low' })
+  async checkCredits() {
+    await this.creditMonitorService.checkAndAlert();
+    const balances = await this.creditMonitorService.checkAllBalances();
+    return { balances };
   }
 }

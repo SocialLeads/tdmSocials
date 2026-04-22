@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ClientsModule } from '../clients/clients.module';
 import { OutgoingCommunicationModule } from '../outgoing-communication/outgoing-communication.module';
 import { ContentModule } from '../content/content.module';
+import { AiModule } from '../ai/ai.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ContentModule } from '../content/content.module';
     ClientsModule,
     OutgoingCommunicationModule,
     ContentModule,
+    AiModule,
   ],
   controllers: [AdminController],
 })

@@ -15,6 +15,8 @@ const DashboardPage: React.FC = () => {
   const [triggeringCron, setTriggeringCron] = useState(false);
   const [cronResult, setCronResult] = useState<string | null>(null);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [checkingCredits, setCheckingCredits] = useState(false);
+  const [creditResult, setCreditResult] = useState<string | null>(null);
 
   const fetchClients = useCallback(async () => {
     try {
@@ -56,6 +58,22 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  const handleCheckCredits = async () => {
+    setCheckingCredits(true);
+    setCreditResult(null);
+    try {
+      const result = await clientsApi.checkCredits();
+      const text = result.balances.length
+        ? result.balances.map((b: any) => `${b.service}: $${b.balance.toFixed(2)}`).join(' | ') + ' — OpenAI: controleer handmatig op platform.openai.com'
+        : 'Geen balansen beschikbaar — controleer API-sleutels';
+      setCreditResult(text);
+    } catch {
+      setCreditResult('Tegoed ophalen mislukt');
+    } finally {
+      setCheckingCredits(false);
+    }
+  };
+
   const filteredClients = clients.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -73,6 +91,14 @@ const DashboardPage: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-[color:var(--c-text)]">Klanten</h1>
         <div className="flex gap-3">
+          <button
+            onClick={handleCheckCredits}
+            disabled={checkingCredits}
+            title="Controleer het resterende tegoed bij Fal.ai (afbeeldingen) en OpenAI (tekstgeneratie)"
+            className="px-4 py-2 text-sm font-medium border border-[color:var(--c-border)] text-[color:var(--c-text)] rounded-lg hover:bg-[color:var(--c-bg2,#f3f4f6)] disabled:opacity-50"
+          >
+            {checkingCredits ? 'Laden...' : 'Tegoed controleren'}
+          </button>
           <button
             onClick={() => setShowSendModal(true)}
             disabled={triggeringCron}
@@ -92,6 +118,12 @@ const DashboardPage: React.FC = () => {
       {cronResult && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
           {cronResult}
+        </div>
+      )}
+
+      {creditResult && (
+        <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg text-purple-700 text-sm">
+          {creditResult}
         </div>
       )}
 
