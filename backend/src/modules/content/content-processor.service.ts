@@ -42,7 +42,7 @@ export class ContentProcessorService {
     private readonly configService: ConfigService,
   ) {
     this.imageProvider = this.configService.get<string>('IMAGE_PROVIDER', 'flux');
-    this.dailyImageLimit = parseInt(this.configService.get<string>('DAILY_IMAGE_LIMIT', '200'), 10);
+    this.dailyImageLimit = parseInt(this.configService.get<string>('DAILY_IMAGE_LIMIT', '360'), 10);
     this.logger.log(`Image provider configured: ${this.imageProvider}, daily limit: ${this.dailyImageLimit}`);
   }
 
@@ -78,15 +78,21 @@ export class ContentProcessorService {
     let imagesGenerated = 0;
     let imagesFailed = 0;
 
+    this.logger.log(`Industries to process: ${industriesInUse.length} — [${industriesInUse.join(', ')}]`);
+
     for (const industry of industriesInUse) {
+      this.logger.log(`--- Industry start: ${industry} ---`);
       try {
         // Generate text content
+        this.logger.log(`Requesting text content from AI for: ${industry}`);
         const rawContent = await this.aiService.generateReadyContent(industry, PLATFORMS);
-        this.logger.log(`Generated content for industry: ${industry}`);
+        this.logger.log(`Text content ready for ${industry}: ${rawContent.content?.length ?? 0} items`);
 
         // Generate images for each platform
         const contentWithImages: PlatformContent[] = [];
-        for (const item of rawContent.content) {
+        for (let i = 0; i < rawContent.content.length; i++) {
+          const item = rawContent.content[i];
+          this.logger.log(`Image ${i + 1}/${rawContent.content.length} for ${industry} — ${item.platform}/${item.angle}`);
           const platformContent = await this.generateImageForContent(item, industry);
           contentWithImages.push(platformContent);
           if (platformContent.imageUrl) {
@@ -173,18 +179,18 @@ export class ContentProcessorService {
 
     if (item.imagePrompt) {
       if (this.isDailyLimitReached()) {
-        this.logger.error(`DAILY IMAGE LIMIT REACHED (${this.dailyImageLimit}). Skipping image for ${item.platform}/${industry}.`);
-        return { platform: item.platform, postText: item.postText, hashtags: item.hashtags, callToAction: item.callToAction, imageUrl: null };
+        this.logger.error(`DAILY IMAGE LIMIT REACHED (${this.dailyImageLimit}). Skipping image for ${item.platform}/${item.angle}/${industry}.`);
+        return { platform: item.platform, angle: item.angle, postText: item.postText, hashtags: item.hashtags, callToAction: item.callToAction, imageUrl: null };
       }
 
       try {
-        this.logger.log(`Generating image for ${item.platform}/${industry} using provider: ${this.imageProvider} [${this.imageCounterValue}/${this.dailyImageLimit} today]`);
+        this.logger.log(`Generating image for ${item.platform}/${item.angle}/${industry} using provider: ${this.imageProvider} [${this.imageCounterValue}/${this.dailyImageLimit} today]`);
 
         const maxAttempts = 3;
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-          this.logger.log(`Image attempt ${attempt}/${maxAttempts} for ${item.platform}/${industry}`);
+          this.logger.log(`Image attempt ${attempt}/${maxAttempts} for ${item.platform}/${item.angle}/${industry}`);
 
-          const filename = this.imageStorageService.generateFilename(industry, item.platform);
+          const filename = this.imageStorageService.generateFilename(industry, item.platform, item.angle);
           let savedUrl = '';
 
           this.incrementImageCounter();
@@ -205,14 +211,15 @@ export class ContentProcessorService {
           this.logger.warn(`Image blank/filtered on attempt ${attempt}, ${attempt < maxAttempts ? 'retrying...' : 'giving up'}`);
         }
       } catch (error: any) {
-        this.logger.error(`Image generation failed for ${item.platform}/${industry}: ${error?.message || error}`);
+        this.logger.error(`Image generation failed for ${item.platform}/${item.angle}/${industry}: ${error?.message || error}`);
       }
     } else {
-      this.logger.warn(`No imagePrompt for ${item.platform}/${industry}`);
+      this.logger.warn(`No imagePrompt for ${item.platform}/${item.angle}/${industry}`);
     }
 
     return {
       platform: item.platform,
+      angle: item.angle,
       postText: item.postText,
       hashtags: item.hashtags,
       callToAction: item.callToAction,

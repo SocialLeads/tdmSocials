@@ -23,12 +23,13 @@ export class ImageStorageService {
     }
   }
 
-  generateFilename(industry: string, platform: string): string {
+  generateFilename(industry: string, platform: string, angle?: string): string {
     const date = new Date().toISOString().split('T')[0];
     const slug = industry.toLowerCase().replace(/[^a-z0-9]/g, '-');
     const platSlug = platform.toLowerCase().replace(/[^a-z0-9]/g, '-');
     const id = randomBytes(4).toString('hex');
-    return `${date}_${slug}_${platSlug}_${id}.png`;
+    const anglePart = angle ? `_${angle.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : '';
+    return `${date}_${slug}_${platSlug}${anglePart}_${id}.png`;
   }
 
   async saveImageFromUrl(tempUrl: string, filename: string): Promise<string> {

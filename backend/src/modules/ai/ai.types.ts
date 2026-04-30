@@ -6,9 +6,14 @@ export enum Language {
   ES = 'Spanish',
 }
 
+export type ContentAngle = 'educational' | 'engagement' | 'inspiration';
+
+export const CONTENT_ANGLES: ContentAngle[] = ['educational', 'engagement', 'inspiration'];
+
 // What GPT returns (before image generation)
 export interface PlatformContentRaw {
   platform: string;
+  angle: ContentAngle;
   postText: string;
   hashtags: string[];
   callToAction: string;
@@ -18,6 +23,7 @@ export interface PlatformContentRaw {
 // After image generation — what goes into the email
 export interface PlatformContent {
   platform: string;
+  angle: ContentAngle;
   postText: string;
   hashtags: string[];
   callToAction: string;
@@ -32,20 +38,4 @@ export interface IndustryContentRaw {
 export interface IndustryContent {
   industry: string;
   content: PlatformContent[];
-}
-
-// Keep old types for backward compatibility during transition
-/** @deprecated Use PlatformContent instead */
-export interface PlatformContentIdea {
-  platform: string;
-  title: string;
-  description: string;
-  hashtags: string[];
-  callToAction: string;
-}
-
-/** @deprecated Use IndustryContent instead */
-export interface ContentIdeas {
-  industry: string;
-  ideas: PlatformContentIdea[];
 }
